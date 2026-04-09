@@ -1,0 +1,118 @@
+I am building a Flutter Android APK on Windows and facing persistent Gradle build failures.
+
+Context:
+
+* My project was originally on C:\src and working fine
+* Due to low disk space, I moved all projects to D:\src
+* After that, builds started failing consistently
+* Gradle appears to be using a custom cache path like: D:\gradle_user_home\caches...
+* Errors include:
+
+  * "Could not move temporary workspace to immutable location"
+  * Failures in transforms cache
+  * mergeReleaseNativeLibs / configureCMakeRelease failures
+  * Occasional NullPointerException during Gradle configuration
+
+What I have already tried:
+
+* flutter clean
+* flutter pub get
+* deleting build folders
+* copying project into a new directory
+* killing java and gradle processes
+* clearing .gradle caches
+* rebuilding multiple times
+
+Key observations:
+
+* Issue started only after moving project from C: to D:
+* Gradle cache seems corrupted or locked
+* Windows file locking is likely involved
+* Build failures persist even with fresh project copy
+* Interrupting builds (Ctrl+C) may have contributed
+
+What I need from you:
+
+1. Explain technically why moving from C: to D: can break Gradle builds on Windows
+2. Explain how GRADLE_USER_HOME and cache locations affect build stability
+3. Identify why Gradle cache gets locked/corrupted (especially on Windows)
+4. Provide a clean long-term architecture for:
+
+   * Flutter projects location
+   * Gradle cache location
+   * Android SDK location
+5. Provide a step-by-step permanent fix for my system (not temporary workaround)
+6. Suggest best practices to avoid Gradle cache corruption in future
+
+Constraints:
+
+* I want to keep my projects on D:\src
+* I am okay keeping Gradle cache on C: if required
+* I want a stable setup for frequent APK builds (Fiverr workflow)
+
+Important:
+
+* Do NOT suggest repeating basic steps like "flutter clean"
+* Focus on environment-level fixes, not project-level
+* Provide exact PowerShell commands where relevant
+
+Goal:
+I want a permanent, stable Flutter + Gradle setup on Windows that avoids cache corruption and file locking issues.
+
+================================================================================
+APPLIED FIX (machine + this repo) — 2026-04-09
+================================================================================
+
+Root cause found in THIS project:
+- android/gradlew.bat was forcing GRADLE_USER_HOME=D:\gradle_user_home whenever D: exists.
+- android/gradle.properties used -Djava.io.tmpdir=D:/gradle_tmp
+Together with the app on D:\src, that put Gradle caches + JVM temp on D: while the build
+also touched D:\src\...\build — heavy rename/transform work on a data drive plus Defender
+increases "immutable location", transform cache, and native-lib merge failures.
+
+What we changed (permanent):
+1) gradlew.bat — default GRADLE_USER_HOME is only C:\gradle_user_home (no auto D:).
+2) gradle.properties — java.io.tmpdir=C:/gradle_tmp (same drive as Gradle home).
+3) User env var GRADLE_USER_HOME=C:\gradle_user_home (folders created: C:\gradle_user_home, C:\gradle_tmp).
+4) scripts/setup-windows-gradle.ps1 — re-run after OS reinstall; optional Defender exclusions when run as Admin.
+
+Recommended layout (stable):
+- Projects: D:\src\... (keep as you want)
+- Gradle cache + JVM temp: C:\gradle_user_home + C:\gradle_tmp (NTFS, less rename pain)
+- Android SDK: keep at C:\Android\sdk (already in android/local.properties)
+- Flutter SDK: C:\src\flutter (already in local.properties)
+
+After a successful APK build, you may DELETE old caches to free D: space (close IDEs first):
+  Remove-Item -Recurse -Force D:\gradle_user_home -ErrorAction SilentlyContinue
+  Remove-Item -Recurse -Force D:\gradle_tmp -ErrorAction SilentlyContinue
+
+Re-run setup (new PC or repair):
+  powershell -ExecutionPolicy Bypass -File D:\src\waiterApp\scripts\setup-windows-gradle.ps1
+
+Defender exclusions (if builds are still slow; Windows Security → Virus & threat protection):
+  Add folder exclusions for: C:\gradle_user_home, C:\gradle_tmp, D:\src, %USERPROFILE%\.gradle
+
+What YOU need to do (once, then build anytime):
+
+1) Close Android Studio / other IDEs (optional but avoids file locks).
+
+2) Windows Defender exclusions — PowerShell Add-MpPreference often fails (0x800106ba) if Defender
+   is off or managed. If builds still fail with transform/rename errors, add manually:
+   Windows Security → Virus & threat protection → Manage settings → Exclusions → Add folder:
+   C:\gradle_user_home
+   C:\gradle_tmp
+   D:\src
+   (optional) %USERPROFILE%\.gradle
+
+3) Open a NEW PowerShell window (picks up User env GRADLE_USER_HOME).
+
+4) One-command release APK (sets TEMP/GRADLE for this session):
+   powershell -ExecutionPolicy Bypass -File D:\src\waiterApp\scripts\build-release-apk.ps1
+
+   Or manually:
+   cd D:\src\waiterApp
+   $env:GRADLE_USER_HOME="C:\gradle_user_home"; $env:TEMP=$env:TMP="C:\gradle_tmp"
+   flutter build apk --release
+
+APK output:
+  D:\src\waiterApp\build\app\outputs\flutter-apk\app-release.apk

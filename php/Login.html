@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="description" content="FoodnPals">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+
+    <title>Login - FoodnPals</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            background-color: #ffffff;
+        }
+
+        .container-fluid {
+            height: 100vh;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        /* Left Section - Centers the Image */
+        .left-section {
+            width: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #50B849;
+        }
+
+        .image-wrapper img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Show/hide images based on screen size */
+        .web-image {
+
+            display: block;
+          
+        }
+
+        .mobile-image {
+            display: none;
+        }
+
+        .right-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            width: 50%;
+            background: #f8f9fa;
+        }
+
+        .login-form {
+            max-width: 400px;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-custom {
+            border: none;
+            background-color: #4cbb17;
+            border-radius: 10px;
+            width: 100%;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        /* Mobile & Tablet View */
+        @media (max-width: 992px) {
+            .container-fluid {
+                flex-direction: column;
+            }
+
+            .left-section {
+                width: 100%;
+                height: 50%;
+                border-radius: 0 0 20px 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .image-wrapper img {
+                max-width: 60%;
+            }
+
+            .right-section {
+                width: 100%;
+                height: 50%;
+            }
+        }
+
+        /* Mobile View - New Design */
+        @media (max-width: 768px) {
+            .web-image {
+                display: none;
+            }
+
+            .mobile-image {
+                display: block;
+            }
+
+            body {
+                    background-color: #ddf2d3;
+                    overflow-x: hidden;
+                }
+
+
+            .container-fluid {
+                background: #50B849;
+                height: 100vh;
+                padding: 0;
+                margin: 0;
+            }
+
+            .left-section {
+                width: 100%;
+                height: 45%;
+                background: transparent;
+                border-radius: 0;
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding-top: 30px;
+            }
+
+            .image-wrapper {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 80%;
+            }
+
+            .image-wrapper img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+            }
+
+            /* Hide food illustrations on mobile */
+            .food-illustrations {
+                display: none;
+            }
+
+            /* Auth tabs */
+            .auth-tabs {
+                display: flex;
+                margin-bottom: 20px;
+                position: relative;
+            }
+
+            .auth-tab {
+                flex: 1;
+                padding: 10px;
+                text-align: center;
+                background: transparent;
+                border: none;
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 16px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: color 0.3s;
+            }
+
+            .auth-tab.active {
+                color: white;
+            }
+
+            .auth-tab-indicator {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 50%;
+                height: 2px;
+                background: white;
+                transition: transform 0.3s;
+            }
+
+            .right-section {
+                width: 100%;
+                height: 55%;
+                background: white;
+                border-radius: 25px 25px 0 0;
+                padding: 30px 25px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                position: relative;
+                margin-top: auto;
+            }
+
+            .login-form {
+                background: transparent;
+                box-shadow: none;
+                padding: 0;
+                max-width: none;
+                width: 100%;
+                height: 100%;
+            }
+
+            .login-form h2 {
+                display: none;
+            }
+
+            .login-form > label {
+                display: none;
+            }
+
+            .form-control {
+                border: none;
+                border-radius: 12px;
+                background: #f8f9fa;
+                padding: 15px;
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+
+            .form-control::placeholder {
+                color: #999;
+            }
+
+            .form-control:focus {
+                background: #f8f9fa;
+                box-shadow: 0 0 0 2px rgba(126, 211, 33, 0.2);
+                border: none;
+            }
+
+            .mb-3 label {
+                display: none;
+            }
+
+            .btn-custom {
+                background: #50B849;
+                border-radius: 12px;
+                padding: 15px;
+                font-size: 16px;
+                font-weight: 600;
+                margin-top: 10px;
+                margin-bottom: 20px;
+            }
+
+            .btn-custom:hover {
+                background: #6BC219;
+            }
+
+            .divider {
+                text-align: center;
+                margin: 20px 0;
+                color: #999;
+                font-size: 14px;
+            }
+
+            .social-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 12px;
+                border: 1px solid #e0e0e0;
+                border-radius: 12px;
+                background: white;
+                margin-bottom: 10px;
+                text-decoration: none;
+                color: #333;
+                font-size: 14px;
+                transition: all 0.3s;
+            }
+
+            .social-btn:hover {
+                background: #f8f9fa;
+                text-decoration: none;
+                color: #333;
+            }
+
+            .social-btn img {
+                width: 20px;
+                height: 20px;
+                margin-right: 10px;
+            }
+
+            .btn-light {
+                display: none;
+            }
+
+            .signup-link {
+                text-align: center;
+                margin-top: 20px;
+                color: #666;
+                font-size: 14px;
+            }
+
+            .signup-link a {
+                color: #7ED321;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+            .forgot-password {
+                text-align: center;
+                margin-bottom: 15px;
+            }
+
+            .forgot-password a {
+                color: #ff4444;
+                text-decoration: none;
+                font-size: 14px;
+            }
+
+            .mb-3.text-end {
+                text-align: center !important;
+            }
+
+            hr {
+                display: none;
+            }
+        }
+        
+        /* Button animation styles */
+        .btn-custom.disabled,
+        .btn-custom:disabled {
+            background-color: #4cbb17;
+            opacity: 0.8;
+        }
+        
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+            vertical-align: middle;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        button[type="submit"]:disabled {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid" style="margin:0; padding:0;">
+        <div class="left-section">
+            <div class="image-wrapper">
+                <img src="Resources/login 1.png" alt="Login Image" class="web-image">
+                <img src="Resources/login 1.png" alt="Login Image" class="mobile-image">
+            </div>
+            
+            <!-- Mobile auth tabs -->
+            <div class="auth-tabs d-block d-md-none">
+                <button class="auth-tab active">Login</button>
+                <button class="auth-tab">Sign-up</button>
+                <div class="auth-tab-indicator"></div>
+            </div>
+        </div>
+
+        <div class="right-section">
+            <div class="login-form">
+                <h2 class="mb-3 text-center">Welcome</h2>
+                <label>Sign up or log in to continue</label>
+
+                <form action="login.php" method="post">
+                    <div class="mb-3">
+                        <label for="username">Email</label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Example@email.com" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="At least 8 characters" required />
+                    </div>
+
+                    <div id="error-message" class="error-message" style="display: none;">Invalid Username or Password.</div>
+
+                    <div class="mb-3 text-end forgot-password">
+                        <a href="ForgetPswd.php">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" style="color: white;" class="btn btn-custom btn-block">
+                        <span class="button-text">Login</span>
+                        <span class="spinner-border spinner-border-sm ms-2" role="status" style="display: none;"></span>
+                    </button>
+
+                    <div class="divider d-block d-md-none">Or</div>
+
+                    <hr />
+
+                    <button type="button" class="btn btn-light btn-block w-100">
+                        <a href="google-login.php" class="d-flex align-items-center justify-content-center">
+                            <img src="Resources/google_icon.png" alt="Google" class="me-2" style="height: 20px;" />
+                            Continue with Google
+                        </a>
+                    </button>
+
+                    <!-- Mobile social buttons -->
+                    <div class="d-block d-md-none">
+                        <a href="google-login.php" class="social-btn">
+                            <img src="Resources/google_icon.png" alt="Apple" class="me-2" style="border-radius:10px; height: 20px;">
+                            Sign in with Google
+                        </a>
+                        <a style="display: none;" href="#" class="social-btn">
+                            <img src="Resources/apple.png" alt="Apple" class="me-2" style="border-radius:10px; height: 20px;">
+                            Continue with Apple
+                        </a>
+                    </div>
+
+                    <button style="display: none;"  type="button" class="btn btn-light btn-block w-100 mt-2">
+                        <img src="Resources/apple.png" alt="Apple" class="me-2" style="border-radius:10px; height: 20px;">
+                        Continue with Apple
+                    </button>
+
+                    <div class="text-center mt-3 signup-link">
+                        Don't you have an account?
+                        <a href="SignUp.php">Sign up</a>
+                        <br><br>
+                    </div>
+                  
+                </form>
+                    
+            </div>
+            </div>
+    </div>  
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get("Error");
+
+        if (error === "1") {
+            document.getElementById("error-message").style.display = "block";
+        }
+
+        // Document ready functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form submission handling
+            const loginForm = document.querySelector('form');
+            const submitButton = loginForm.querySelector('button[type="submit"]');
+            const buttonText = submitButton.querySelector('.button-text');
+            const spinner = submitButton.querySelector('.spinner-border');
+            
+            loginForm.addEventListener('submit', function() {
+                // Show spinner and disable button
+                spinner.style.display = 'inline-block';
+                submitButton.disabled = true;
+                buttonText.textContent = 'Logging in...';
+            });
+            
+            // Mobile tab functionality
+            const tabs = document.querySelectorAll('.auth-tab');
+            const indicator = document.querySelector('.auth-tab-indicator');
+
+            tabs.forEach((tab, index) => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Move indicator
+                    indicator.style.transform = `translateX(${index * 100}%)`;
+                    
+                    // Handle sign-up redirect
+                    if (this.textContent === 'Sign-up') {
+                        window.location.href = 'SignUp.php';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

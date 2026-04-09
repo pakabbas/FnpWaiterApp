@@ -1,0 +1,42 @@
+I am building a Flutter Android APK on Windows using PowerShell.
+
+My project builds fail with Gradle errors like:
+
+* "Could not move temporary workspace to immutable location"
+* Errors inside paths like: D:\gradle_user_home\caches...\transforms...
+* Sometimes errors related to CMake or native libs
+* Happens during tasks like :mergeReleaseNativeLibs or configureCMakeRelease
+
+What I have already tried:
+
+* flutter clean
+* flutter pub get
+* deleting project build folder
+* killing java.exe and gradle processes
+* copying project into a new folder
+* clearing .gradle caches
+* rebuilding multiple times
+
+Observations:
+
+* Gradle is using a custom path: D:\gradle_user_home\
+* Build sometimes fails due to file locking or inability to move/rename cache folders
+* Issue started after interrupting a build (Ctrl+C)
+
+What I need from you:
+
+1. Explain clearly what is causing this issue at system/Gradle level (not generic Flutter explanation)
+2. Identify why Gradle cache becomes locked or corrupted on Windows
+3. Provide a reliable workaround to bypass the issue immediately (even temporary)
+4. Provide a permanent fix for this environment problem
+5. Suggest best practices to avoid this in future (Windows + Flutter + Gradle)
+
+Important:
+
+* Do NOT suggest basic steps like "flutter clean" unless necessary
+* Focus on Gradle cache behavior, file locks, and environment variables like GRADLE_USER_HOME
+* Provide exact commands (PowerShell compatible)
+* If needed, suggest isolating Gradle cache to a temp directory
+
+Goal:
+I need a working APK build ASAP, then a stable long-term fix.

@@ -1,0 +1,13 @@
+Foodnpals is a Ubereats like app for instant 
+table booking and food ordering while the customer is on the way to restaurant 
+
+it has 2 parts:
+1. For users, which is on root
+Home.php: Where All Restaurants appears for exploration
+Profile.php: When user clicks on a restaurant, this page is opened and user can select table, add food to cart, view gallery
+Confirmation.php: When a booking is made, its details are shown here with map, food ordered
+
+Color theme: #4cbb17 and white
+
+2nd Part: in admin folder
+This is where restaurant will login to manage Bookings, Menu, Tables, Users, etc

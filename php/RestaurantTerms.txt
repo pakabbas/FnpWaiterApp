@@ -1,0 +1,167 @@
+FoodnPals Terms and Conditions
+
+For Restaurants 
+
+Effective: July 23, 2025
+
+This Terms of Service Agreement (“Agreement”) governs the use of the FoodnPals Employee App (“App”) by restaurants (“Merchants, “you," or "your ") for table booking services. By registering on the App, you agree to comply with this Agreement.
+
+1. FoodnPals
+
+This section outlines who we are, how our platform operates, and the role we play in facilitating transactions and information sharing between Users and Merchants.
+
+1.1 Who we are
+
+FoodnPals operates an online marketplace and connection platform to:
+
+(a) broker the exchange of goods and services among you and other consumers, restaurants, and other businesses (“Merchants”), and
+
+(b) provide you with access to information on the “Services.” FoodnPals is not a merchant, retailer, restaurant, delivery service, or food preparation business.
+
+1.2 What we do
+
+The “Services” we provide or make available include:
+
+(a) the Platform,
+
+(b) booking table(s) for fine-dining (“Booking”).
+
+When you book a table, FoodnPals acts as a facilitator on behalf of that Merchant to facilitate, process, and conclude the Booking.
+
+2. Application of this Agreement
+
+This Agreement governs your access to and use of the Employee App (“App”) provided by FoodnPals and is between you and FoodnPals (or referred to as “we” or “us”).
+
+3. Acceptance of this Agreement
+
+If you access our App and access or use any information, function, feature, or service made available or enabled by FoodnPals (“Services”), click or tap a button or take similar action to signify your affirmative acceptance of this Agreement, or complete the FoodnPals restaurant account registration process, you, your heirs, assigns, and successors (collectively “you” or “your”) hereby present and warrant that:
+
+(a) you have read, understood, and agreed to be bound by this Agreement,
+
+(b) you are of legal working age in the jurisdiction in which you reside to form a legally binding contract with FoodnPals, and
+
+(c) you have the authority to enter into the Agreement personally and, if applicable, on behalf of any corporate legal entity for whom you have created an account or been named as the “User” during the FoodnPals account registration process and to bind such organization to the Agreement.
+
+4. Amendments
+
+FoodnPals reserves the right to modify this Agreement or its policies relating to the Platform or Services at any time, effective upon posting an updated version of this Agreement.
+
+If we make any material changes to this Agreement, we will notify you by email at the email address that you provide us or by another means. You should regularly review this Agreement, as you will be deemed to have agreed to the modified Agreement (whether or not reviewed by you) by your continued use of the App following the date when the modified Agreement is posted. If you do not agree to this Agreement or any modifications made to this Agreement, you should immediately cease using the App and Services.
+
+4. Rules and Restrictions
+
+Without limiting other rules and restrictions in this Agreement, by using or accessing the Services, you agree to not engage in any of the following prohibited activities:
+
+(a) using the Platform for any unlawful purpose or in violation of any applicable laws, regulations, or ethical standards, including fraudulent, deceptive, or misleading conduct,
+
+(b) selling alcohol or other age-restricted products or illegal narcotics or psychotropic substances through the Platform
+
+(c) posting content that violates intellectual property, privacy, publicity, trade secrets, or any other rights of any third party,
+
+(d) posting unlawful, obscene, defamatory, threatening, harassing, abusive, hateful, or otherwise objectionable content, as determined by FoodnPals in its sole discretion,
+
+(e) engaging in or promoting cyberbullying or any form of online harassment,
+
+(f) posting content that depicts or encourages dangerous, life-threatening, or harmful activities,
+
+(g) sharing unauthorized personal details, including phone numbers, addresses, or last names of any individual,
+
+(h) posting unsolicited advertisements, spam, external URLs, or any HTML/code without permission,
+
+(i) Misrepresenting yourself as another person or entity,
+
+(j) harvesting or collecting others’ information, including email addresses, without consent,
+
+(k) allowing others to use your account to post or view content,
+
+(l) threatening, stalking, or abusing any user on the Platform,
+
+(m) engaging in any behavior that restricts others’ use of the Platform or exposes FoodnPals or its users to liability, or
+
+(n) soliciting or encouraging others to engage in any prohibited activities listed above.
+
+5. Registration and Account Management
+
+This section outlines the eligibility criteria, the importance of providing accurate information, and your responsibilities in safeguarding account access.
+
+5.1 Eligibility
+
+You represent that you are a legally operating restaurant with all necessary licenses, permits, and approvals to serve food and beverages.
+
+5.2 Accuracy of Information
+
+You must provide accurate, current, and complete details (e.g., menu, pricing, capacity, operating hours). Any misrepresentation may result in suspension or termination.
+
+5.3 Login Credentials
+
+You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.
+
+6. Booking Management
+
+This section outlines your obligations regarding booking confirmations, cancellations, and no-shows.
+
+6.1 Booking Confirmations
+
+You must honor all confirmed reservations made through the Platform unless exceptional circumstances (e.g., emergencies, unforeseen closures) arise.
+
+6.2 Cancellations by Restaurant
+
+If you cancel a reservation without cause, you may be subject to penalties, including compensation to the customer.
+
+Repeated cancellations may result in suspension or blacklisting.
+
+6.3 No-show Policy
+
+You must notify the Platform of frequent customer no-shows for potential account adjustments. FoodnPals is not liable for any refunds in case of no-shows. However, FoodnPals will pay you $25.00 (USD) for each no-show. This amount is exclusive of applicable taxes and Stripe service fee, which will be deducted upon payment to you.
+
+7. Payment Terms
+
+This section governs all financial transactions on FoodnPals, including fees and payment methods.
+
+7.1 Fees
+
+In order to become a User of our Platform, you are required to pay a subscription fee, which shall be based on the subscription plan opted by you.
+
+7.2 Payment Method
+
+If you choose to pay using an online payment method, the payment shall be processed by Stripe. With your consent, your credit card/payment information will be stored with Stripe for future Bookings. FoodnPals does not store your credit card/payment information.
+
+8. Representation, Warranties, and Limitation of Liabilities
+
+This section defines the legal boundaries of FoodnPals’ responsibilities and your rights as a User of our Platform. This section also outlines the extent of our liability, or lack thereof, for any damages, losses, or disruptions you may encounter while using the App.
+
+8.1 Disclaimer of Warranties
+
+You expressly understand and agree that your use of the App is entirely at your own risk. Changes are periodically made to the App and may be made at any time without providing notice to you. FoodnPals will use reasonable endeavors to ensure the App is available as much of the time as possible, but does not guarantee they will be available all the time. The App is provided on an “as is” basis without guarantees, warranties, or conditions of any kind, either express or implied, including, but not limited to, guarantees, warranties, or conditions of merchantability, fitness for a particular or general purpose, and non-infringement. FoodnPals makes no warranties, conditions, or representations about the accuracy, reliability, completeness, or timeliness of the content made available through the Platform.
+
+FoodnPals does not warrant that the App will operate error-free or that the App is free of computer viruses and other harmful malware. If your use of the App results in the need for servicing or replacing equipment or data, FoodnPals shall not be responsible for those economic costs.
+
+8.2 Indemnification
+
+To the extent permitted by law, FoodnPals (which shall include its employees, directors, agents, representatives, and affiliates) exclude all liability (whether arising in contract, in negligence or otherwise) for loss or damage which you or any third party may incur in connection with our App, our Services, and any website linked to our Platform and any content or material posted on it. Your exclusive remedy concerning your use of the App is to discontinue your use of the App. The FoodnPals entities, their agents, representatives, and service providers shall not be liable for any indirect, special, incidental, consequential, or exemplary damages arising from your use of the App or for any other claim related in any way to your use of the App. These exclusions for indirect, special, consequential, and exemplary damages include, without limitation, damages for lost profits, lost data, loss of goodwill, work stoppage, computer failure, or malfunction, or any other commercial damages or losses, even if the FoodnPals entities, their agents, representatives, and service providers have been advised of the possibility thereof and regardless of the legal or equitable theory upon which the claim is based. Because some states or jurisdictions do not allow the exclusion or the limitation of liability for consequential or incidental damages, in such states or jurisdictions, FoodnPals, the FoodnPals entities, its agents, representatives, and service providers' liability shall be limited to the extent permitted by law.
+
+9. Internet Delays
+
+The App may be subject to limitations, delays, and other problems inherent in using the Internet and electronic communications. FoodnPals is not responsible for any delays, delivery failures, damage, loss, injury, or other economic damage resulting from such problems.
+
+10. Termination
+
+If you violate this Agreement, FoodnPals may respond based on several factors, including, but not limited to, the egregiousness of your actions and whether a pattern of harmful behavior exists.
+
+In addition, at its sole discretion, FoodnPals may modify or discontinue the App or modify, suspend, or terminate your access to the App for any reason, with or without notice to you and without liability to you or any third party. In addition to suspending or terminating your access to the App, FoodnPals reserves the right to take appropriate legal action, including, without limitation, pursuing civil, criminal, or injunctive redress. Even after your right to use the App is terminated, this Agreement will remain enforceable against you. All provisions, which by their nature should survive to give effect to those provisions, shall survive the termination of this Agreement.
+
+11. Severability
+
+If any provision of this Agreement is found to be invalid by any court having competent jurisdiction, the invalidity of such provision shall not affect the validity of the remaining provisions of this Agreement, which shall remain in full force and effect. No waiver of any provision in this Agreement shall be deemed a further or continuing waiver of such provision or any other provision.
+
+12. Personal Data (Personal Information) Protection
+
+You agree and consent to FoodnPals collecting, using, processing, and disclosing your Personal Data in accordance with this Agreement and as further described in our Privacy Policy. Our Privacy Policy is incorporated by reference herein and accessible here (www.foodnpals.com/privacypolicy/) or via the links on our Platform.
+
+13. Prevailing Language
+
+In the event of a dispute as to this Agreement, the English version shall prevail. The English language version of this Agreement shall control in all respects and shall prevail in case of any inconsistencies with translated versions.
+
+14. Contact Information
+
+If you wish to contact us regarding any questions or comments you may have, please reach out to us via the Help Center available on the Platform or by emailing us at support@foodnpals.com. 

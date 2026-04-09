@@ -1,0 +1,127 @@
+{
+  "AppUsers": [
+    {"UserID":"int"}, {"FirstName":"varchar"}, {"LastName":"varchar"}, {"Email":"varchar"}, {"PhoneNumber":"varchar"},
+    {"Address":"varchar"}, {"Username":"varchar"}, {"Password":"varchar"}, {"RegistrationDate":"varchar"}, {"Location":"varchar"},
+    {"ProfilePictureURL":"varchar"}, {"PreferredCuisine":"varchar"}, {"Allergies":"text"}, {"DietaryPreferences":"text"},
+    {"IsPaymentVerified":"text"}, {"AccountStatus":"varchar"}, {"UserType":"varchar"}, {"DateOfBirth":"date"},
+    {"Longitude":"decimal"}, {"Latitude":"decimal"}, {"LoginToken":"varchar"}
+  ],
+  "Attachments": [
+    {"AttachmentID":"int"}, {"RestaurantID":"int"}, {"Attachment":"varchar"}, {"Title":"varchar"}
+  ],
+  "Configurations": [
+    {"ID":"int"}, {"BannerImage":"varchar"}, {"BannerText":"varchar"}, {"DailyDealMenu1":"varchar"}, {"DailyDealMenu2":"varchar"},
+    {"DailyDealMenu3":"varchar"}, {"FBLinks":"varchar"}, {"XLink":"varchar"}, {"InstaLink":"varchar"},
+    {"Post1img":"varchar"}, {"Post1Text":"varchar"}, {"Post2img":"varchar"}, {"Post2Text":"varchar"},
+    {"Post3img":"varchar"}, {"Post3Text":"varchar"}, {"Post4img":"varchar"}, {"Post4Text":"varchar"},
+    {"Address1":"varchar"}, {"Address2":"varchar"}, {"Address3":"varchar"}, {"Email":"varchar"}, {"Phone":"varchar"}
+  ],
+  "dining_tables": [
+    {"TableID":"int"}, {"RestaurantID":"int"}, {"TableNumber":"int"}, {"Capacity":"int"}, {"Status":"varchar"},
+    {"DisplayPicture":"varchar"}, {"Description":"varchar"}, {"ReservedUntil":"datetime"}
+  ],
+  "LoungeReservations": [
+    {"ID":"int"}, {"BookingDate":"date"}, {"BookingTime":"time"}, {"Duration":"int"}, {"RequestedOn":"datetime"},
+    {"Name":"varchar"}, {"Email":"varchar"}, {"Mobile":"varchar"}, {"NumGuests":"int"}, {"Details":"text"}
+  ],
+  "menu_items": [
+    {"ItemID":"int"}, {"RestaurantID":"int"}, {"Name":"varchar"}, {"Description":"varchar"}, {"Price":"float"},
+    {"Category":"varchar"}, {"Availability":"varchar"}, {"DisplayPicture":"varchar"}, {"Type":"enum"}
+  ],
+  "OrderDetails": [
+    {"OrderDetailID":"int"}, {"OrderID":"int"}, {"MenuItemID":"int"}, {"Quantity":"int"}, {"Subtotal":"float"}, {"Instructions":"varchar"}
+  ],
+  "orders": [
+    {"OrderID":"int"}, {"CustomerID":"int"}, {"RestaurantID":"int"}, {"ReservationID":"int"}, {"OrderDateTime":"varchar"},
+    {"TotalAmount":"float"}, {"Status":"varchar"}
+  ],
+  "otp_store": [
+    {"id":"int"}, {"phone":"varchar"}, {"code":"varchar"}, {"created_at":"datetime"}
+  ],
+  "Payments": [
+    {"PaymentID":"int"}, {"RestaurantID":"int"}, {"StripeSessionID":"varchar"}, {"StripeSubscriptionID":"varchar"},
+    {"StripeInvoiceID":"varchar"}, {"Amount":"decimal"}, {"Status":"varchar"}, {"PaymentDate":"datetime"}, {"Response":"text"}
+  ],
+  "Plans": [
+    {"PlanID":"int"}, {"PlanName":"varchar"}, {"MaxTables":"int"}, {"MaxUsers":"int"}, {"WaiterApp":"varchar"},
+    {"POSIntegration":"varchar"}, {"Details":"text"}, {"StripePriceID":"varchar"}, {"BillingCycle":"enum"}, {"Amount":"decimal"}
+  ],
+  "reservations": [
+    {"ReservationID":"int"}, {"CustomerID":"int"}, {"RestaurantID":"int"}, {"ReservationDateTime":"datetime"}, {"TableNumber":"int"},
+    {"Status":"varchar"}, {"SpecialRequests":"text"}, {"NumberofGuests":"int"}, {"CheckInTime":"datetime"}, {"CheckOutTime":"datetime"},
+    {"TableID":"int"}, {"ActDate":"datetime"}, {"RestaurantLatitude":"varchar"}, {"RestaurantLongitude":"varchar"},
+    {"CustomerLatitude":"varchar"}, {"CustomerLongitude":"varchar"}, {"ExtendedTime":"datetime"}, {"ExtensionReason":"varchar"},
+    {"Details":"varchar"}
+  ],
+  "restaurants": [
+    {"RestaurantID":"int"}, {"Name":"varchar"}, {"Email":"varchar"}, {"PhoneNumber":"varchar"}, {"Address":"varchar"},
+    {"PostalCode":"varchar"}, {"State":"varchar"}, {"City":"varchar"}, {"Description":"text"}, {"OwnerID":"int"},
+    {"PlanName":"varchar"}, {"BillingCycle":"enum"}, {"RegistrationDate":"varchar"}, {"OpeningHours":"time"}, {"ClosingHours":"time"},
+    {"Website":"varchar"}, {"CuisineType":"varchar"}, {"Capacity":"int"}, {"AverageRating":"float"},
+    {"ParkingAvailability":"varchar"}, {"SmokingPolicy":"varchar"}, {"AlcoholService":"varchar"}, {"FoodType":"varchar"},
+    {"Location":"varchar"}, {"AdditionalInformation":"text"}, {"DisplayPicture":"varchar"}, {"WaitTime":"int"},
+    {"OpeningTime":"time"}, {"ClosingTime":"time"}, {"AmountPaid":"float"}, {"PaymentMethod":"varchar"},
+    {"PaymentDetails":"varchar"}, {"PaymentStatus":"varchar"}, {"RestaurantIcon":"varchar"}, {"RestaurantBanner":"varchar"},
+    {"Thumbnail":"varchar"}, {"Latitude":"varchar"}, {"Longitude":"varchar"}, {"TableTimeLimit":"int"}, {"Timezone":"varchar"},
+    {"CurrentPlanID":"int"}, {"SubscriptionStatus":"enum"}, {"SubscriptionStartDate":"date"}, {"SubscriptionEndDate":"date"},
+    {"StripeCustomerID":"varchar"}, {"StripeSubscriptionID":"varchar"}
+  ],
+  "Reviews": [
+    {"ReviewID":"int"}, {"ReservationID":"int"}, {"CustomerID":"int"}, {"RestaurantID":"int"},
+    {"ReviewDate":"datetime"}, {"Ratings":"float"}, {"Details":"varchar"}
+  ],
+  "staff": [
+    {"StaffID":"int"}, {"RestaurantID":"int"}, {"FirstName":"varchar"}, {"LastName":"varchar"}, {"UserType":"varchar"},
+    {"Designation":"varchar"}, {"Email":"varchar"}, {"PhoneNumber":"varchar"}, {"Password":"varchar"}, {"AccountStatus":"varchar"}, {"Token":"varchar"}
+  ],
+  "SubscriptionHistory": [
+    {"HistoryID":"int"}, {"RestaurantID":"int"}, {"PlanID":"int"}, {"StartDate":"datetime"}, {"EndDate":"datetime"}, {"Reason":"varchar"}
+  ],
+  "SubscriptionRefunds": [
+    {"RefundID":"int"}, {"SubscriptionID":"int"}, {"PlanName":"varchar"}, {"RestaurantID":"int"}, {"RefundAmount":"decimal"},
+    {"RefundStatus":"enum"}, {"RequestDate":"timestamp"}, {"ApprovalDate":"timestamp"}, {"BillingCycle":"text"}, {"ProcessedDate":"timestamp"},
+    {"RefundReason":"text"}, {"AdminComments":"text"}, {"PaymentMethod":"varchar"}, {"TransactionID":"varchar"},
+    {"Workflowstatus":"text"}, {"Comments":"text"}
+  ],
+  "Subscriptions": [
+    {"SubscriptionID":"int"}, {"RestaurantID":"int"}, {"PlanID":"int"}, {"PaymentID":"int"}, {"Month":"varchar"},
+    {"Year":"int"}, {"ExpiryDate":"date"}, {"PaymentDate":"date"}, {"PaymentStatus":"varchar"}, {"Status":"varchar"},
+    {"PaymentMethod":"varchar"}, {"PaymentDetails":"int"}, {"Details":"varchar"}
+  ],
+  "StripeCustomers": [
+    {"ID":"int"}, {"StripeCustomerID":" varchar"}, {"CustomerID":"varchar"}, {"PaymentMethodID":"varchar"}, {"Last4":"varchar"}, {"CardBrand":"varchar"},
+    {"ExpMonth":"int"}, {"ExpYear":"int"},  {"BookingID":"int"}, {"CreatedAt":"timestamp"}, {"UpdatedAt":"timestamp"}
+  ],
+  "DeletionReasons": [
+    {"ReasonID":"int"},
+    {"UserID":"int"},
+    {"Reason":"text"},
+    {"CreatedAt":"datetime"}
+  ],
+  "BookingPayments": [
+  { "column": "PaymentID", "type": "int" },
+  { "column": "BookingID", "type": "int" },
+  { "column": "CustomerID", "type": "int" },
+  { "column": "StripePaymentIntentID", "type": "varchar" },
+  { "column": "Amount", "type": "decimal" },
+  { "column": "Currency", "type": "varchar" },
+  { "column": "Status", "type": "enum('pending','succeeded','failed','refunded')" },
+  { "column": "CreatedAt", "type": "datetime" },
+  { "column": "Details", "type": "varchar" }
+],
+"RestaurantPayouts": [
+  {"PayoutID": "int"},
+  {"BookingID": "int"},
+  {"RestaurantID": "int"},
+  {"Amount": "decimal"},
+  {"Currency": "varchar"},
+  {"Status": "enum('pending','processing','paid','failed','refund')"},
+  {"Method": "enum('stripe_transfer','bank_ach')"},
+  {"StripeTransferID": "varchar"},
+  {"CreatedAt": "datetime"},
+  {"ProcessedAt": "datetime"},
+  {"Details": "varchar"}
+]
+
+
+}

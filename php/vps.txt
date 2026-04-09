@@ -1,0 +1,24 @@
+scp D:\1\xampp\htdocs\fp\fp.zip root@148.230.86.55:/var/www/html/
+
+
+cd /var/www/html
+sudo unzip -o fp.zip
+sudo rm fp.zip
+sudo chown -R www-data:www-data .
+sudo chmod -R 755 .
+
+
+scp D:\1\xampp\htdocs\fp\index.html root@148.230.86.55:/var/www/html/
+ssh root@148.230.86.55 "chown www-data:www-data /var/www/html/index.html && chmod 755 /var/www/html/index.html"
+
+
+
+
+for khelmaidan:
+
+scp D:\1\xampp\htdocs\Foodnpals\Foodnpals.zip root@148.230.86.55:/var/www/khelmaidan/
+cd /var/www/khelmaidan
+sudo unzip -o Foodnpals.zip
+sudo rm Foodnpals.zip
+sudo chown -R www-data:www-data .
+sudo chmod -R 755 .

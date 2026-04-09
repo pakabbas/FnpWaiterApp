@@ -1,0 +1,68 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Signing & secrets — do not commit (use GitHub Actions secrets for CI)
+**/key.properties
+*.jks
+*.keystore
+**/service-account.json
+
+# DB credentials (keep locally; never commit)
+api/creds.php
+php/creds.php
+php/creds copy.php
+
+# Office temp lockfiles
+~$*
+
+# API keys / OAuth / payment tokens (GitHub push protection; keep local copies only)
+php/api.txt
+php/google-config.php
+php/chatbot.php
+php/create-checkout-session.php
+php/payment-success.php
+php/save_payment_method.php
+php/verify_existing_payment.php
