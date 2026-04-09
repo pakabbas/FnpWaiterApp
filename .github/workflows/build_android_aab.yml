@@ -1,0 +1,63 @@
+# Build release AAB for Google Play (Android App Bundle).
+# Uses the same secrets as Build Android APK:
+#   RELEASE_KEYSTORE, STORE_PASSWORD, KEY_PASSWORD, KEY_ALIAS
+#
+# Artifact: app-release.aab → upload in Play Console (Production / Testing → Create release).
+
+name: Build Android App Bundle (Play Store)
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2.23.0
+        with:
+          channel: stable
+          cache: true
+
+      - name: Dependencies
+        run: flutter pub get
+
+      - name: Decode release keystore
+        env:
+          RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
+        run: |
+          echo "$RELEASE_KEYSTORE" | base64 -d > android/app/ci-release.keystore
+
+      - name: Write key.properties (CI only)
+        env:
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          cat > android/key.properties << EOF
+          storePassword=$STORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=ci-release.keystore
+          EOF
+
+      - name: Build release app bundle
+        run: flutter build appbundle --release
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-aab-play-store
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
