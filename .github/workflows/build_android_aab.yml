@@ -1,8 +1,15 @@
-# Build release AAB for Google Play (Android App Bundle).
-# Uses the same secrets as Build Android APK:
+# Signed release AAB for Google Play with auto-incrementing versionCode.
+#
+# Secrets (same as APK workflow):
 #   RELEASE_KEYSTORE, STORE_PASSWORD, KEY_PASSWORD, KEY_ALIAS
 #
-# Artifact: app-release.aab → upload in Play Console (Production / Testing → Create release).
+# Repository variable (Settings → Secrets and variables → Actions → Variables):
+#   PLAY_STORE_VERSION_OFFSET — REQUIRED for existing apps on Play: set this to the SAME
+#   number as the last versionCode you published (Play Console → App bundle explorer).
+#   Each CI run then uses: versionCode = OFFSET + run_number (always increases).
+#   For a brand-new app with no uploads yet, use 0 or leave unset.
+#
+# Version NAME (e.g. 1.2.0) is read from pubspec.yaml (part before +).
 
 name: Build Android App Bundle (Play Store)
 
@@ -33,6 +40,25 @@ jobs:
       - name: Dependencies
         run: flutter pub get
 
+      - name: Resolve version name from pubspec
+        id: pubspec
+        run: |
+          LINE=$(grep '^version:' pubspec.yaml | head -1 | sed 's/version: *//' | tr -d ' ')
+          NAME=$(echo "$LINE" | cut -d'+' -f1)
+          echo "version_name=$NAME" >> $GITHUB_OUTPUT
+          echo "Pubspec version name: $NAME"
+
+      - name: Compute Play Store versionCode (monotonic)
+        id: ver
+        env:
+          OFFSET_RAW: ${{ vars.PLAY_STORE_VERSION_OFFSET }}
+        run: |
+          OFF="${OFFSET_RAW:-0}"
+          [ -z "$OFF" ] && OFF=0
+          CODE=$((OFF + GITHUB_RUN_NUMBER))
+          echo "version_code=$CODE" >> $GITHUB_OUTPUT
+          echo "versionCode=$CODE (offset=$OFF + GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER)"
+
       - name: Decode release keystore
         env:
           RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
@@ -52,12 +78,15 @@ jobs:
           storeFile=ci-release.keystore
           EOF
 
-      - name: Build release app bundle
-        run: flutter build appbundle --release
+      - name: Build signed app bundle
+        run: |
+          flutter build appbundle --release \
+            --build-name="${{ steps.pubspec.outputs.version_name }}" \
+            --build-number="${{ steps.ver.outputs.version_code }}"
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
-          name: release-aab-play-store
+          name: release-aab-v${{ steps.ver.outputs.version_code }}
           path: build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
