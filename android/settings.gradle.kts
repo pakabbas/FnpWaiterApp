@@ -11,10 +11,7 @@ pluginManagement {
     includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 
     repositories {
-        // repo1.maven.org is Central with a hostname that often resolves when repo.maven.apache.org does not.
-        maven { url = uri("https://repo1.maven.org/maven2/") }
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-        maven { url = uri("https://repo.huaweicloud.com/repository/maven/") }
+        // Use google + mavenCentral only; third-party mirrors (e.g. Aliyun) often 502 on CI.
         google()
         mavenCentral()
         gradlePluginPortal()

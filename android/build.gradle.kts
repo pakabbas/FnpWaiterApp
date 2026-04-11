@@ -1,8 +1,5 @@
 allprojects {
     repositories {
-        maven { url = uri("https://repo1.maven.org/maven2/") }
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-        maven { url = uri("https://repo.huaweicloud.com/repository/maven/") }
         google()
         mavenCentral()
     }
@@ -28,9 +25,6 @@ tasks.register<Delete>("clean") {
 
 buildscript {
     repositories {
-        maven { url = uri("https://repo1.maven.org/maven2/") }
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-        maven { url = uri("https://repo.huaweicloud.com/repository/maven/") }
         google()
         mavenCentral()
     }
