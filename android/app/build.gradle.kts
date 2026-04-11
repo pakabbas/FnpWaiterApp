@@ -18,7 +18,8 @@ if (keyPropertiesFile.exists()) {
 android {
     namespace = "com.foodnpals.fnpRestaurantEmployee"
     compileSdk = 36
-    ndkVersion = flutter.ndkVersion
+    // NDK r28+ emits 16 KB ELF alignment (Play requirement for API 35+). Flutter default is still r27.
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
