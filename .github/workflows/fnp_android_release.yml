@@ -53,7 +53,10 @@ jobs:
           done
           if [ -z "$FOUND" ] && [ -x "$ROOT/tools/bin/sdkmanager" ]; then FOUND="$ROOT/tools/bin/sdkmanager"; fi
           if [ -n "$FOUND" ]; then
+            # yes | sdkmanager → SIGPIPE on yes; disable pipefail so only sdkmanager's exit counts.
+            set +o pipefail
             yes | "$FOUND" --sdk_root="$ROOT" "ndk;28.2.13676358" >/dev/null
+            set -o pipefail
             echo "Installed NDK 28.2.13676358 via $FOUND"
           else
             echo "::warning::sdkmanager not found under $ROOT — Gradle may download NDK via AGP. See build_instructions.txt if Play reports 16 KB errors."
@@ -144,7 +147,10 @@ jobs:
           done
           if [ -z "$FOUND" ] && [ -x "$ROOT/tools/bin/sdkmanager" ]; then FOUND="$ROOT/tools/bin/sdkmanager"; fi
           if [ -n "$FOUND" ]; then
+            # yes | sdkmanager → SIGPIPE on yes; disable pipefail so only sdkmanager's exit counts.
+            set +o pipefail
             yes | "$FOUND" --sdk_root="$ROOT" "ndk;28.2.13676358" >/dev/null
+            set -o pipefail
             echo "Installed NDK 28.2.13676358 via $FOUND"
           else
             echo "::warning::sdkmanager not found under $ROOT — Gradle may download NDK via AGP. See build_instructions.txt if Play reports 16 KB errors."
