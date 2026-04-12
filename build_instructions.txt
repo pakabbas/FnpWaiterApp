@@ -1,0 +1,128 @@
+================================================================================
+FnP Waiter App — Android release builds (GitHub Actions)
+================================================================================
+
+REMINDERS (do not skip — avoids Play Console errors)
+----------------------------------------------------
+Keep this section when editing this file.
+
+  [ ] Workflow: .github/workflows/fnp_android_release.yml (signed APK + Play AAB).
+
+  [ ] Version name: bump the part BEFORE "+" in pubspec.yaml `version:` when you
+      ship a new user-visible release (e.g. 1.1.4+26). CI uses that string for
+      --build-name on BOTH APK and AAB.
+
+  [ ] Version code (integer): CI computes Play versionCode automatically — do NOT
+      rely on the number after "+" in pubspec for the uploaded AAB. The formula is
+      below; it avoids "Version code has already been used" and gives a new code
+      on every workflow run and on "Re-run failed jobs" (attempt increments).
+
+  [ ] 16 KB page size: repo must keep NDK r28 pin, extractNativeLibs=false,
+      jniLibs useLegacyPackaging=false, AGP 8.5.1+, and CI "Install Android NDK
+      r28" step. If Play still shows "does not support 16 KB memory page sizes",
+      upgrade Flutter stable + flutter pub upgrade, then re-check native .so
+      alignment (APK Analyzer / check_elf_alignment per Android docs).
+
+
+Where builds run
+----------------
+Release APK and Play Store AAB are built on GitHub Actions. Trigger: push to
+`main` or `master`, or run "FnP Android Release" manually (workflow_dispatch).
+
+Workflow file: .github/workflows/fnp_android_release.yml
+
+Concurrency: one run per branch at a time (new runs do not cancel in-progress).
+
+
+Secrets (repository Settings → Secrets and variables → Actions)
+-----------------------------------------------------------------
+Required for signed artifacts:
+
+  RELEASE_KEYSTORE   Base64-encoded contents of your release .jks file
+  STORE_PASSWORD     Keystore password
+  KEY_PASSWORD       Key password
+  KEY_ALIAS          Key alias
+
+Optional repository variable:
+
+  PLAY_STORE_VERSION_OFFSET
+    Integer base for Google Play versionCode (default 1000000 if unset).
+
+    versionCode = OFFSET + (GITHUB_RUN_NUMBER * 1000) + GITHUB_RUN_ATTEMPT
+
+    - GITHUB_RUN_NUMBER increases on every push/workflow run (unique sequence).
+    - GITHUB_RUN_ATTEMPT increases when you re-run the same workflow run, so
+      re-uploads after a failed job do not reuse the same versionCode as the
+      first attempt.
+
+If Play still says "Version code has already been used" (e.g. you uploaded a
+build from another pipeline or manually set a higher code): set
+PLAY_STORE_VERSION_OFFSET in repo Variables to an integer **strictly greater**
+than the highest versionCode already used in Play Console, then run CI again.
+
+
+Version numbers (two different things)
+--------------------------------------
+1) versionName (user-visible, e.g. 1.1.3)
+   From pubspec.yaml: the part before "+" on the `version:` line. Passed as
+   --build-name for both APK and AAB jobs.
+
+2) versionCode (integer for Play Store)
+   Computed only in CI: OFFSET + run_number*1000 + run_attempt. Passed as
+   --build-number for both APK and AAB so the APK artifact matches the AAB.
+
+The "+NN" suffix in pubspec is conventional local build numbering; CI does not
+use it for Play versionCode unless you change the workflow.
+
+
+16 KB memory page size (Google Play)
+------------------------------------
+Play requires support for 16 KB memory pages on 64-bit devices for current
+targetSdk policies. This project configures:
+
+  - Android Gradle Plugin 8.5.1+ (android/settings.gradle.kts)
+  - NDK r28+ pinned in android/app/build.gradle.kts (ndkVersion = 28.2.13676358)
+  - CI installs that NDK before flutter build
+  - packaging { jniLibs { useLegacyPackaging = false } }
+  - android:extractNativeLibs="false" on <application> (AndroidManifest.xml)
+
+Official background:
+  https://developer.android.com/guide/practices/page-sizes
+
+If Play still reports "Your app does not support 16 KB memory page sizes":
+
+  1) Confirm the workflow log shows NDK install success or AGP downloading NDK.
+
+  2) Update Flutter (stable) and run flutter pub upgrade; prebuilt .so in
+     plugins must be 16 KB–aligned for arm64-v8a / x86_64.
+
+  3) Android Studio → Build → Analyze APK… on the release APK; check Alignment
+     for .so under lib/. Use check_elf_alignment.sh from Google’s docs if needed.
+
+  4) Optional product decision: restrict release ABIs to arm64-v8a only in
+     Gradle (drops 32-bit devices) only if acceptable.
+
+
+Artifacts
+---------
+After a successful run:
+
+  - Job "Signed release APK": release-apk-v<versionCode> (app-release.apk)
+  - Job "Play Store AAB": release-aab-v<versionCode> (app-release.aab)
+
+Download the AAB from the workflow run and upload to Play Console. The
+versionCode in the artifact name matches the built bundle.
+
+
+Local builds (optional)
+-----------------------
+Not required for store releases if you use CI.
+
+  - JDK 17, Flutter stable, Android SDK with NDK 28.2.13676358.
+  - android/key.properties for signing (CI generates this from secrets).
+
+Windows: see android/gradle.properties if you hit temp path or Defender issues.
+
+
+End
+---

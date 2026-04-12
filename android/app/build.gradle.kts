@@ -63,8 +63,8 @@ android {
         }
     }
 
-    // Support for 16 KB page sizes
-    packagingOptions {
+    // AGP 8.5.1+: uncompressed JNI + 16 KB zip alignment in bundles; do not use legacy compressed packaging.
+    packaging {
         jniLibs {
             useLegacyPackaging = false
         }
