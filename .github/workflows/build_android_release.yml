@@ -1,9 +1,9 @@
 # One workflow run per push: builds signed APK and Play AAB in parallel (two jobs).
 #
 # Secrets: RELEASE_KEYSTORE, STORE_PASSWORD, KEY_PASSWORD, KEY_ALIAS
-# Variable (optional): PLAY_STORE_VERSION_OFFSET — added to GITHUB_RUN_NUMBER for versionCode.
-# If unset, defaults to 1000000 so builds never reuse small codes (1,2,3…) already on Play.
-# To use small sequential codes instead, set the variable to your highest versionCode on Play.
+# Variable (optional): PLAY_STORE_VERSION_OFFSET — base for versionCode (default 1000000).
+# versionCode = OFFSET + (GITHUB_RUN_NUMBER * 1000) + GITHUB_RUN_ATTEMPT
+# (run_attempt increments on "Re-run jobs", so re-runs never reuse the same code as the first try.)
 
 name: Android Release (APK + Play Bundle)
 
@@ -87,13 +87,11 @@ jobs:
         env:
           OFFSET_RAW: ${{ vars.PLAY_STORE_VERSION_OFFSET }}
         run: |
-          # Default 1000000 avoids collision with early manual uploads (e.g. 1,2,3 on Play).
-          # Set PLAY_STORE_VERSION_OFFSET to your max versionCode on Play for smaller numbers (e.g. 3 → next 4+run#).
           OFF="${OFFSET_RAW:-1000000}"
           [ -z "$OFF" ] && OFF=1000000
-          CODE=$((OFF + GITHUB_RUN_NUMBER))
+          CODE=$((OFF + GITHUB_RUN_NUMBER * 1000 + GITHUB_RUN_ATTEMPT))
           echo "version_code=$CODE" >> $GITHUB_OUTPUT
-          echo "AAB versionCode=$CODE (OFFSET=$OFF + GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER)"
+          echo "AAB versionCode=$CODE (OFFSET=$OFF + run#$GITHUB_RUN_NUMBER*1000 + attempt=$GITHUB_RUN_ATTEMPT)"
 
       - name: Decode release keystore
         env:
