@@ -2,6 +2,42 @@
 FnP Waiter App — Android release builds (GitHub Actions)
 ================================================================================
 
+VERIFIED WORKING CONFIG — do not regress (CI green + Play upload)
+------------------------------------------------------------------
+This exact combination has been verified: **GitHub Actions completes both jobs**
+(Signed release APK + Play Store AAB) and **Play Console accepts the AAB** (incl.
+16 KB page-size checks). If you change any of the below without re-testing end
+to end, expect CI exit 1, OOM, or Play rejection again.
+
+  **Gradle (android/gradle.properties)**
+  - `org.gradle.jvmargs` uses **-Xmx4G** (and ~1G Metaspace, modest code cache).
+    Do **not** raise to **-Xmx8G** on default GitHub-hosted runners (~7 GB RAM) —
+    Gradle OOM fails **both** APK and AAB jobs with exit code 1.
+  - Keep `org.gradle.parallel=false`, `org.gradle.workers.max=1`,
+    `org.gradle.daemon=false` unless you know why you are changing them.
+
+  **Workflow (.github/workflows/fnp_android_release.yml)**
+  - **flutter pub get** only — **never** add `flutter pub upgrade` to CI (breaks
+    reproducibility vs `pubspec.lock` and can fail resolution). Upgrade deps
+    **locally**, commit `pubspec.lock`, then push.
+  - **Before** `ndk;28.2.13676358`: run **`yes | sdkmanager --sdk_root=... --licenses`**
+    (with `|| true` on the licenses line as in the workflow). Unaccepted licenses
+    make sdkmanager exit non-zero under `set -e` and kill the job.
+  - After NDK exists on disk: export **ANDROID_NDK_HOME** / **NDK_ROOT** to that
+    NDK path (see "Point Gradle at NDK r28" step).
+  - **flutter clean** immediately before **flutter build apk** / **flutter build appbundle**.
+  - Tooling: **Java 17**, **subosito/flutter-action** with **channel: stable**,
+    **runs-on: ubuntu-latest**.
+
+  **Android app (Play / 16 KB — overlaps NEVER REGRESS below)**
+  - **ndkVersion** 28.2.13676358 in `android/app/build.gradle.kts`.
+  - **ndk { abiFilters }** = **arm64-v8a only** in `defaultConfig`.
+  - **packaging.jniLibs.useLegacyPackaging = false**; manifest **extractNativeLibs=false**.
+
+Keep this section when editing this file. Update it if you intentionally change
+the verified toolchain and re-verify CI + Play.
+
+
 NEVER REGRESS 16 KB / PLAY UPLOAD (read before every release)
 -------------------------------------------------------------
 Google Play rejects the AAB with "Your app does not support 16 KB memory page
@@ -32,7 +68,7 @@ Keep this section when editing this file.
   [ ] Workflow: .github/workflows/fnp_android_release.yml (signed APK + Play AAB).
 
   [ ] Version name: bump the part BEFORE "+" in pubspec.yaml `version:` when you
-      ship a new user-visible release (e.g. 1.1.4+26). CI uses that string for
+      ship a new user-visible release (e.g. 1.1.5+27). CI uses that string for
       --build-name on BOTH APK and AAB.
 
   [ ] Version code (integer): CI computes Play versionCode automatically — do NOT
@@ -60,6 +96,9 @@ Concurrency: one run per branch at a time (new runs do not cancel in-progress).
 
 GitHub Actions CI failures (both jobs exit code 1)
 --------------------------------------------------
+See **VERIFIED WORKING CONFIG** at the top of this file for the settings that
+must stay. Common regressions:
+
 - **Gradle out of memory:** Hosted runners have about **7 GB RAM**. Setting
   `org.gradle.jvmargs` to **-Xmx8G** (or high Metaspace) can OOM-kill Gradle and
   fail both APK and AAB builds. Keep the JVM heap around **4G** in
