@@ -41,7 +41,8 @@ jobs:
 
       - run: flutter pub get
 
-      - run: flutter pub upgrade
+      # Do not run flutter pub upgrade here — it can change resolved versions vs pubspec.lock and fail CI.
+      # For Play / 16 KB issues, upgrade deps locally, commit pubspec.lock, then push.
 
       - name: Install Android NDK r28 (16 KB page size)
         shell: bash
@@ -56,8 +57,9 @@ jobs:
           done
           if [ -z "$FOUND" ] && [ -x "$ROOT/tools/bin/sdkmanager" ]; then FOUND="$ROOT/tools/bin/sdkmanager"; fi
           if [ -n "$FOUND" ]; then
-            # yes | sdkmanager → SIGPIPE on yes; disable pipefail so only sdkmanager's exit counts.
+            # Licenses must be accepted or sdkmanager exits non-zero and fails the job under set -e.
             set +o pipefail
+            yes | "$FOUND" --sdk_root="$ROOT" --licenses >/dev/null 2>&1 || true
             yes | "$FOUND" --sdk_root="$ROOT" "ndk;28.2.13676358" >/dev/null
             set -o pipefail
             echo "Installed NDK 28.2.13676358 via $FOUND"
@@ -152,7 +154,8 @@ jobs:
 
       - run: flutter pub get
 
-      - run: flutter pub upgrade
+      # Do not run flutter pub upgrade here — it can change resolved versions vs pubspec.lock and fail CI.
+      # For Play / 16 KB issues, upgrade deps locally, commit pubspec.lock, then push.
 
       - name: Install Android NDK r28 (16 KB page size)
         shell: bash
@@ -167,8 +170,8 @@ jobs:
           done
           if [ -z "$FOUND" ] && [ -x "$ROOT/tools/bin/sdkmanager" ]; then FOUND="$ROOT/tools/bin/sdkmanager"; fi
           if [ -n "$FOUND" ]; then
-            # yes | sdkmanager → SIGPIPE on yes; disable pipefail so only sdkmanager's exit counts.
             set +o pipefail
+            yes | "$FOUND" --sdk_root="$ROOT" --licenses >/dev/null 2>&1 || true
             yes | "$FOUND" --sdk_root="$ROOT" "ndk;28.2.13676358" >/dev/null
             set -o pipefail
             echo "Installed NDK 28.2.13676358 via $FOUND"

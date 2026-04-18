@@ -58,6 +58,22 @@ Workflow file: .github/workflows/fnp_android_release.yml
 Concurrency: one run per branch at a time (new runs do not cancel in-progress).
 
 
+GitHub Actions CI failures (both jobs exit code 1)
+--------------------------------------------------
+- **Gradle out of memory:** Hosted runners have about **7 GB RAM**. Setting
+  `org.gradle.jvmargs` to **-Xmx8G** (or high Metaspace) can OOM-kill Gradle and
+  fail both APK and AAB builds. Keep the JVM heap around **4G** in
+  `android/gradle.properties` unless you use a larger self-hosted runner.
+
+- **`flutter pub upgrade` in CI:** Do **not** add it to the workflow — it can
+  resolve different versions than `pubspec.lock` and break the build. Run
+  `flutter pub upgrade` **locally**, test, commit `pubspec.lock`, then push.
+
+- **NDK / sdkmanager:** The workflow runs license acceptance before
+  `ndk;28.2.13676358`. If the install step fails, check the log for sdkmanager
+  path and ANDROID_HOME.
+
+
 Secrets (repository Settings → Secrets and variables → Actions)
 -----------------------------------------------------------------
 Required for signed artifacts:
@@ -120,8 +136,9 @@ If Play still reports "Your app does not support 16 KB memory page sizes":
 
   1) Confirm the workflow log shows NDK install success or AGP downloading NDK.
 
-  2) Update Flutter (stable) and run flutter pub upgrade; prebuilt .so in
-     plugins must be 16 KB–aligned for arm64-v8a / x86_64.
+  2) Update Flutter (stable) and run **flutter pub upgrade locally**, commit
+     pubspec.lock, then push — not inside CI (see CI failures section above).
+     Prebuilt .so in plugins must be 16 KB–aligned for arm64-v8a.
 
   3) Android Studio → Build → Analyze APK… on the release APK; check Alignment
      for .so under lib/. Use check_elf_alignment.sh from Google’s docs if needed.
