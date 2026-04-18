@@ -163,7 +163,7 @@ class ApiUtils {
       }
     } catch (e) {
       print('Error loading tables: $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -182,7 +182,7 @@ class ApiUtils {
       }
     } catch (e) {
       print('Error loading reservations: $e');
-      return [];
+      rethrow;
     }
   }
 

@@ -757,7 +757,7 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProviderStateMixin {
+class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   List<TableModel> _tables = [];
   List<ReservationModel> _reservations = [];
   bool _isLoading = true;
@@ -774,9 +774,16 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   late final Animation<double> _blinkAnimation;
   static const String _googleApiKey = 'YOUR_GOOGLE_MAPS_API_KEY';
 
+  /// Serializes overlapping refresh calls (timer + resume + pull-to-refresh).
+  Future<void> _serializedLoads = Future.value();
+
+  /// Debounces rapid lifecycle transitions before reloading from the network.
+  Timer? _resumeReloadDebounce;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadData();
     _startRefreshTimer();
     _setupFCMTokenRefresh();
@@ -792,10 +799,23 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _resumeReloadDebounce?.cancel();
     _refreshTimer?.cancel();
     _bookingRingPlayer?.dispose();
     _blinkController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _resumeReloadDebounce?.cancel();
+      _resumeReloadDebounce = Timer(const Duration(milliseconds: 350), () {
+        if (!mounted) return;
+        _loadData();
+      });
+    }
   }
 
   void _setupFCMTokenRefresh() {
@@ -855,7 +875,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
       bookingId ??= int.tryParse(raw);
 
       if (bookingId == null || bookingId <= 0) {
-        SnackBarUtils.showError(context, 'Invalid QR. Scan a Reservation ID or a URL containing ?ID=');
+        SnackBarUtils.showError(context, 'Invalid QR Code. Please try again.');
         return;
       }
 
@@ -909,14 +929,28 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
     });
   }
 
-  Future<void> _loadData() async {
-    await Future.wait([
-      _loadTables(),
-      _loadReservations(schedulePendingPrompt: false),
-    ]);
-    if (mounted) {
-      setState(() => _isLoading = false);
-      _schedulePendingBookingPrompt();
+  /// Refetches tables and reservations. [showLoadingOverlay] shows the full-screen
+  /// loader (e.g. manual refresh); background/timer/resume reloads omit it.
+  Future<void> _loadData({bool showLoadingOverlay = false}) {
+    _serializedLoads = _serializedLoads.then((_) => _runLoadData(showLoadingOverlay));
+    return _serializedLoads;
+  }
+
+  Future<void> _runLoadData(bool showLoadingOverlay) async {
+    if (!mounted) return;
+    if (showLoadingOverlay) {
+      setState(() => _isLoading = true);
+    }
+    try {
+      await Future.wait([
+        _loadTables(),
+        _loadReservations(schedulePendingPrompt: false),
+      ]);
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        _schedulePendingBookingPrompt();
+      }
     }
   }
 
@@ -1005,11 +1039,17 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   Future<void> _loadTables() async {
     try {
       final data = await ApiUtils.getTables(widget.staffData['restaurant_id']);
+      if (!mounted) return;
       setState(() {
         _tables = data.map((table) => TableModel.fromJson(table)).toList();
       });
     } catch (e) {
-      // Fallback to hardcoded tables
+      print('Error loading tables: $e');
+      if (!mounted) return;
+      // ApiUtils used to return [] on failure and wiped the UI. Keep last good data when refreshing.
+      if (_tables.isNotEmpty) {
+        return;
+      }
       setState(() {
         _tables = [
           TableModel(tableId: 1, number: 1, capacity: 4, status: 'Available', description: 'Window table', isOccupied: false),
@@ -1026,6 +1066,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   Future<void> _loadReservations({bool schedulePendingPrompt = true}) async {
     try {
       final data = await ApiUtils.getReservations(widget.staffData['restaurant_id']);
+      if (!mounted) return;
       setState(() {
         _reservations = data.map((reservation) => ReservationModel.fromJson(reservation)).toList();
       });
@@ -1037,7 +1078,14 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
         _schedulePendingBookingPrompt();
       }
     } catch (e) {
-      // Fallback to hardcoded reservations
+      print('Error loading reservations: $e');
+      if (!mounted) return;
+      if (_reservations.isNotEmpty) {
+        if (schedulePendingPrompt) {
+          _schedulePendingBookingPrompt();
+        }
+        return;
+      }
       setState(() {
         _reservations = [
           ReservationModel(
@@ -1762,10 +1810,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {
-              setState(() => _isLoading = true);
-              _loadData();
-            },
+            onPressed: () => _loadData(showLoadingOverlay: true),
             tooltip: 'Refresh',
           ),
           IconButton(
