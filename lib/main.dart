@@ -761,6 +761,9 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   List<TableModel> _tables = [];
   List<ReservationModel> _reservations = [];
   bool _isLoading = true;
+  bool _bulkUpdatingTables = false;
+  /// 1 = Reserve All in progress, 2 = Available All in progress
+  int _bulkTableAction = 0;
   Timer? _refreshTimer;
   String _selectedReservationStatus = 'all'; // Filter for reservation status
   final Map<int, double> _reservationIdToMiles = {}; // cache reservation distance in miles
@@ -821,16 +824,17 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   }
 
   Future<void> _openQRScanner() async {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => QRCodeScannerScreen(
-          onQRCodeScanned: _handleQRCodeScanned,
-        ),
+    final scanned = await Navigator.of(context).push<String>(
+      MaterialPageRoute<String>(
+        builder: (context) => const QRCodeScannerScreen(),
       ),
     );
+    if (!mounted || scanned == null || scanned.isEmpty) return;
+    await _handleQRCodeScanned(scanned);
   }
 
   Future<void> _handleQRCodeScanned(String qrData) async {
+    if (!mounted) return;
     try {
       // Simple, ideal logic: Accept either a numeric ReservationID or a URL that contains ?ID=
       final raw = qrData.trim();
@@ -1171,6 +1175,108 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
     } catch (e) {
       print('Error updating table: $e');
       SnackBarUtils.showError(context, 'Error updating table: $e');
+    }
+  }
+
+  Future<void> _setAllTablesReserved() async {
+    final indices = <int>[];
+    for (var i = 0; i < _tables.length; i++) {
+      if (!_tables[i].isOccupied) indices.add(i);
+    }
+    if (indices.isEmpty) {
+      if (mounted) {
+        SnackBarUtils.showInfo(context, 'All tables are already reserved');
+      }
+      return;
+    }
+    setState(() {
+      _bulkUpdatingTables = true;
+      _bulkTableAction = 1;
+    });
+    var failed = 0;
+    for (final i in indices) {
+      final table = _tables[i];
+      try {
+        final success = await ApiUtils.updateTableStatus(
+          tableId: table.tableId,
+          status: 'Reserved',
+        );
+        if (success && mounted) {
+          setState(() {
+            _tables[i].isOccupied = true;
+            _tables[i].status = 'Reserved';
+          });
+        } else {
+          failed++;
+        }
+      } catch (e) {
+        print('Error reserving table ${table.number}: $e');
+        failed++;
+      }
+    }
+    if (!mounted) return;
+    setState(() {
+      _bulkUpdatingTables = false;
+      _bulkTableAction = 0;
+    });
+    if (failed == 0) {
+      SnackBarUtils.showSuccess(context, 'All tables marked reserved');
+    } else {
+      SnackBarUtils.showError(
+        context,
+        'Could not update $failed table(s). Try refresh or update individually.',
+      );
+    }
+  }
+
+  Future<void> _setAllTablesAvailable() async {
+    final indices = <int>[];
+    for (var i = 0; i < _tables.length; i++) {
+      if (_tables[i].isOccupied) indices.add(i);
+    }
+    if (indices.isEmpty) {
+      if (mounted) {
+        SnackBarUtils.showInfo(context, 'All tables are already available');
+      }
+      return;
+    }
+    setState(() {
+      _bulkUpdatingTables = true;
+      _bulkTableAction = 2;
+    });
+    var failed = 0;
+    for (final i in indices) {
+      final table = _tables[i];
+      try {
+        final success = await ApiUtils.updateTableStatus(
+          tableId: table.tableId,
+          status: 'Available',
+        );
+        if (success && mounted) {
+          setState(() {
+            _tables[i].isOccupied = false;
+            _tables[i].status = 'Available';
+          });
+        } else {
+          failed++;
+        }
+      } catch (e) {
+        print('Error marking table ${table.number} available: $e');
+        failed++;
+      }
+    }
+    if (!mounted) return;
+    setState(() {
+      _bulkUpdatingTables = false;
+      _bulkTableAction = 0;
+    });
+    if (failed == 0) {
+      SnackBarUtils.showSuccess(context, 'All tables marked available');
+    } else {
+      SnackBarUtils.showError(
+        context,
+        'Could not update $failed table(s). Try refresh or update individually.',
+      );
     }
   }
 
@@ -1749,6 +1855,58 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                 ],
               ),
               const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _bulkUpdatingTables || _tables.isEmpty
+                          ? null
+                          : _setAllTablesReserved,
+                      icon: _bulkTableAction == 1
+                          ? SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.red[700],
+                              ),
+                            )
+                          : Icon(Icons.event_seat, size: 18, color: Colors.red[800]),
+                      label: const Text('Reserve All'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red[800],
+                        side: BorderSide(color: Colors.red[400]!),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _bulkUpdatingTables || _tables.isEmpty
+                          ? null
+                          : _setAllTablesAvailable,
+                      icon: _bulkTableAction == 2
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CBB17)),
+                              ),
+                            )
+                          : const Icon(Icons.event_seat_outlined, size: 18),
+                      label: const Text('Available All'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF4CBB17),
+                        side: const BorderSide(color: Color(0xFF4CBB17)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -1760,7 +1918,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                     width: (MediaQuery.of(context).size.width - 48) / 3, // Account for padding and spacing
                     height: (MediaQuery.of(context).size.width - 48) / 3, // Make it square by using same width and height
                     child: GestureDetector(
-                      onDoubleTap: () => _toggleTableStatus(index),
+                      onDoubleTap: _bulkUpdatingTables ? null : () => _toggleTableStatus(index),
                       child: Card(
                         margin: EdgeInsets.zero, // Remove default margin
                         elevation: 4,

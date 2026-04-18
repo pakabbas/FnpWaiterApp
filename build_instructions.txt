@@ -4,6 +4,8 @@ FnP Waiter App — Android release builds (GitHub Actions)
 
 REMINDERS (do not skip — avoids Play Console errors)
 ----------------------------------------------------
+
+Commit code to github and create CI action to create signed bundle for android play store release. DO NOT BUILD OR RUN LOCALLY
 Keep this section when editing this file.
 
   [ ] Workflow: .github/workflows/fnp_android_release.yml (signed APK + Play AAB).

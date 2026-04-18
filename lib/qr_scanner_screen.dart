@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+/// Opens via [Navigator.push]; pops with the scanned string using
+/// `Navigator.pop(context, scannedText)`, or with no result if the user backs out.
 class QRCodeScannerScreen extends StatefulWidget {
-  final Function(String) onQRCodeScanned;
-  const QRCodeScannerScreen({super.key, required this.onQRCodeScanned});
+  const QRCodeScannerScreen({super.key});
 
   @override
   State<QRCodeScannerScreen> createState() => _QRCodeScannerScreenState();
@@ -22,7 +23,6 @@ class _QRCodeScannerScreenState extends State<QRCodeScannerScreen> {
   void initState() {
     super.initState();
     print('🔍 initState() → Starting QRCodeScannerScreen');
-    print('🔍 Callback function: ${widget.onQRCodeScanned}');
     controller = MobileScannerController(
       facing: CameraFacing.back,
       detectionSpeed: DetectionSpeed.normal,
@@ -73,6 +73,13 @@ class _QRCodeScannerScreenState extends State<QRCodeScannerScreen> {
       return;
     }
 
+    // The camera often emits many duplicate reads per second; without this,
+    // a second Navigator.pop can run after the route is gone and pop the
+    // screen below the scanner (blank app).
+    if (hasScanned) {
+      return;
+    }
+
     try {
       if (capture.barcodes.isEmpty) {
         print('⚠️ onDetect() called but no barcodes found');
@@ -83,27 +90,27 @@ class _QRCodeScannerScreenState extends State<QRCodeScannerScreen> {
       print('📦 Barcode detected → format: ${barcode.format}, value: ${barcode.rawValue}');
       print('📦 Barcode type: ${barcode.type}');
 
-      final code = barcode.rawValue;
-      if (code != null && code.isNotEmpty) {
-        lastCode = code;
-        print('✅ Valid QR detected: $code');
-        print('✅ Calling onQRCodeScanned callback...');
-        HapticFeedback.mediumImpact();
-        try {
-          Navigator.pop(context);
-          print('✅ Navigator.pop called');
-          // Call callback after closing the scanner screen
-          widget.onQRCodeScanned(code);
-          print('✅ Callback executed successfully');
-        } catch (e) {
-          print('❌ Error in QR detection callback: $e');
-        }
-      } else {
+      final code = barcode.rawValue?.trim();
+      if (code == null || code.isEmpty) {
         print('⚠️ QR code empty or null');
+        return;
       }
+
+      lastCode = code;
+      print('✅ QR payload captured: $code');
+      hasScanned = true;
+      HapticFeedback.mediumImpact();
+
+      if (!mounted) return;
+
+      // Return payload to opener; validation happens on the dashboard.
+      Navigator.of(context).pop<String>(code);
     } catch (e, st) {
       print('❌ Exception in _onDetect: $e');
       print(st);
+      if (mounted) {
+        hasScanned = false;
+      }
     }
   }
 
@@ -201,17 +208,12 @@ class _QRCodeScannerScreenState extends State<QRCodeScannerScreen> {
                     children: [
                       ElevatedButton.icon(
                         onPressed: () {
+                          if (hasScanned) return;
                           print('🧪 Test QR button pressed');
-                          print('🧪 Calling onQRCodeScanned callback...');
-                          try {
-                            Navigator.pop(context);
-                            print('🧪 Navigator.pop called');
-                            // Call callback after closing the scanner screen
-                            widget.onQRCodeScanned('https://foodnpals.com/admin/QRCode.php?ID=362');
-                            print('🧪 Callback executed successfully');
-                          } catch (e) {
-                            print('❌ Error in Test QR button: $e');
-                          }
+                          hasScanned = true;
+                          Navigator.of(context).pop<String>(
+                            'https://foodnpals.com/admin/QRCode.php?ID=362',
+                          );
                         },
                         icon: const Icon(Icons.qr_code),
                         label: const Text('Test QR'),

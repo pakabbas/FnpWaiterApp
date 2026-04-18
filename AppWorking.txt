@@ -1,0 +1,193 @@
+================================================================================
+FoodnPals (FnP) — Restaurant staff / waiter app — how it works
+================================================================================
+Last reviewed from repo state: April 2026
+
+WHAT THIS APP IS
+----------------
+A Flutter mobile app for restaurant employees (waiters, managers). It is NOT
+for diners. Staff sign in, see floor tables and today’s bookings, respond to
+pending reservations, update bookings, mark no-shows (with a server-side
+penalty charge), complete visits via QR scan, and receive push notifications.
+
+Published identity in the UI: "FnP - Restaurant Employee" / FoodnPals.
+
+PACKAGE NAME (pubspec)
+----------------------
+Project name in pubspec.yaml: foodnpalsapp (internal Flutter package id).
+App display title differs from the package name.
+
+TECH STACK
+----------
+- Flutter (Material 3), Dart SDK ^3.9.0
+- State: mostly setState inside large widgets (no separate state-management
+  package)
+- Persistence: shared_preferences (staff session after login)
+- Networking: http package → JSON REST API
+- Push: firebase_core + firebase_messaging (token registered with backend)
+- Maps: google_maps_flutter (customer vs restaurant markers on booking detail)
+- QR: mobile_scanner
+- Sound: audioplayers (looping ring for new pending booking prompts)
+
+BACKEND
+-------
+Production API base URL (hardcoded): https://foodnpals.com/api
+
+The repo includes a sibling folder `api/` with PHP scripts that correspond to
+those endpoints (useful for reference or deployment alongside the main site).
+The Flutter app does not call local files; it calls the live host above.
+
+AUTHENTICATION AND SESSION
+--------------------------
+1) AuthWrapper (home of MaterialApp) loads SharedPreferences via SessionManager.
+   If a session exists → DashboardScreen; else → LoginScreen.
+
+2) LoginScreen calls ApiUtils.staffLogin (POST stafflogin.php with username
+   and password). On success, SessionManager.saveSession stores staff_id,
+   restaurant_id, name fields, email, user_type, designation, token, and a
+   logged-in flag.
+
+3) Development fallbacks (should be removed or gated for production):
+   - Fixed credentials admin12345 / admin12345 → synthetic admin user
+   - On network failure, admin / admin → same synthetic user
+   Double-tap "Welcome Back!" prefills waiter@foodnpals.com / 12345 for testing.
+
+4) After login, FCMUtils.updateStaffFCMToken posts the device token to
+   updateFCMToken.php. Token refresh is subscribed via FCMUtils for that
+   staff_id.
+
+5) Sign out: SessionManager.clearSession and navigate to LoginScreen.
+
+MAIN SCREENS AND FLOW
+---------------------
+main.dart (single large file contains almost all UI and logic):
+
+  MyApp → AuthWrapper → LoginScreen | DashboardScreen
+
+  DashboardScreen (per restaurant_id from session):
+  - Loads tables: GET get_tables.php?restaurant_id=…
+  - Loads reservations: GET get_reservations.php?restaurant_id=…
+  - Auto refresh: Timer every 60 seconds
+  - FCM: foreground messages show a SnackBar; opening app from notification
+    refreshes reservations
+
+  Tables grid:
+  - Double-tap a table card toggles local occupied flag and calls
+    update_table_status.php (Available ↔ Reserved).
+
+  Pending bookings:
+  - When a reservation has status "pending" and has not yet been prompted,
+    a modal dialog appears, a looping asset sound plays (booking_ring.mp3),
+    and staff can Accept, Decline (with reason), or Offer Another Table.
+
+  Accept: update_reservation.php status Accepted + update_table_status Reserved
+  for the booking’s table.
+
+  Decline: update_reservation.php with status Denied and decline_reason.
+
+  Offer another table: update_reservation.php with new table_id/table_number
+  and Accepted, plus reserve the chosen free table.
+
+  QR "Complete booking":
+  - Opens QRCodeScannerScreen (lib/qr_scanner_screen.dart).
+  - Accepts either a plain numeric reservation id or a URL containing ?ID= or
+    ?id= (e.g. admin QRCode.php links).
+  - Calls complete_booking_from_qr.php with canonical URL
+    https://foodnpals.com/admin/QRCode.php?ID=<id> and staff_id.
+
+  Booking list:
+  - Horizontal chips filter by status (only tabs with count > 0).
+  - Distance "miles away": computed from customer vs restaurant lat/lng.
+    If Google Distance Matrix key is unset (placeholder YOUR_GOOGLE_MAPS_API_KEY
+    in code), Haversine great-circle distance is used as fallback.
+  - Blinking red distance row when < 1 mile and status is pending or accepted.
+
+  ReservationDetailScreen (opened from list "eye" icon):
+  - Loads orders: GET get_reservation_orders.php?reservation_id=…
+  - Shows customer card, read-only booking fields (time, table, extensions).
+  - Editable section (unless status is Completed or No Show): status
+    dropdown, guests, special requests, details → update_reservation.php.
+  - Choosing "No Show" runs a confirmation then: update status No Show, then
+    POST ChargeNoShow.php (reservation_id, customer_id). UI mentions a $25 fee;
+    actual amount is enforced server-side.
+  - Google Map with customer + restaurant markers and a straight polyline
+    only for Pending or Accepted; locked bookings still show read-only info.
+
+SUPPORTING LIB FILES
+--------------------
+lib/utils/api_utils.dart   — HTTP helpers and all API endpoint wrappers
+lib/utils/session_manager.dart — SharedPreferences keys for staff session
+lib/utils/fcm_utils.dart   — Register and refresh FCM token with backend
+lib/utils/snackbar_utils.dart — Consistent SnackBars
+
+qr_scanner_screen.dart     — Camera permission, torch, test QR button (dev)
+
+DATA MODELS (in main.dart)
+--------------------------
+TableModel, ReservationModel, OrderModel, OrderDetailModel — parsed from API
+JSON field names such as table_id, reservation_id, customer_latitude, etc.
+
+API ENDPOINTS USED BY THE APP
+-----------------------------
+(All under https://foodnpals.com/api/ unless noted)
+
+  stafflogin.php              POST JSON username, password
+  updateFCMToken.php          POST staff_id, fcm_token
+  get_tables.php              GET restaurant_id
+  get_reservations.php        GET restaurant_id
+  get_reservation_orders.php  GET reservation_id
+  update_table_status.php     POST table_id, status
+  update_reservation.php      POST reservation_id, status, optional table_id,
+                              table_number, special_requests, number_of_guests,
+                              details, decline_reason
+  complete_booking_from_qr.php POST qr_url, staff_id
+  ChargeNoShow.php            POST reservation_id, customer_id
+
+Defined in ApiUtils but not referenced from current lib code:
+  get_restaurant_timezone.php
+
+FIREBASE / ANDROID / IOS
+------------------------
+- Firebase is initialized at startup; background FCM handler is registered.
+- google-services.json appears under android/ and project root (typical
+  Firebase Android setup).
+- iOS/macOS/web folders exist for a full Flutter template; primary delivery
+  documented in build_instructions.txt is Android via GitHub Actions.
+
+RELEASE BUILDS
+--------------
+See build_instructions.txt: signed APK/AAB on GitHub Actions
+(.github/workflows/fnp_android_release.yml), versionName from pubspec,
+versionCode computed in CI, 16 KB page size / NDK requirements.
+
+OTHER REPO FOLDERS
+------------------
+- php/          Large legacy PHP site (customer flows, payments, etc.) — not
+                wired directly by this Flutter app’s API client.
+- temp_project/ Appears to be a duplicate/scaffold tree; not the active lib
+                source of truth for the waiter app.
+- android_asset/offline.html — bundled asset (not referenced in lib grep;
+                may be for WebView or future use).
+
+DECLARED DEPENDENCIES NOT USED IN lib/ (as of this review)
+----------------------------------------------------------
+pubspec lists webview_flutter, geolocator, permission_handler (beyond QR camera),
+url_launcher, firebase_auth, google_sign_in — no imports/usages found under
+lib/. They may be leftovers or reserved for future features. permission_handler
+is used by qr_scanner_screen for the camera.
+
+MAINTENANCE NOTES FOR DEVELOPERS
+--------------------------------
+- main.dart is very large (~3000+ lines); new features might split into
+  feature files/widgets for readability.
+- Remove or feature-flag hardcoded login credentials before any public store
+  listing.
+- Replace YOUR_GOOGLE_MAPS_API_KEY for Distance Matrix if road distance is
+  required; verify getRequest is not prepending baseUrl to full Google URLs if
+  that path is ever fixed to call Google directly.
+- Test QR button in QRCodeScannerScreen points at a real example URL; consider
+  removing or gating for release builds.
+
+================================================================================
+End of AppWorking.txt
+================================================================================
