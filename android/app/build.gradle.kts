@@ -40,9 +40,12 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
-        // Support for 16 KB page sizes
+        // Play Store 16 KB page size: only package arm64-v8a. armeabi-v7a / x86 / x86_64
+        // prebuilt .so from Flutter plugins are often still 4 KB–aligned; one bad ABI
+        // fails the whole AAB upload. Real devices on Play are overwhelmingly arm64.
+        // (Debug on x86 emulator: use an arm64 system image, or temporarily add ABI.)
         ndk {
-            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+            abiFilters += listOf("arm64-v8a")
         }
     }
 

@@ -2,6 +2,27 @@
 FnP Waiter App — Android release builds (GitHub Actions)
 ================================================================================
 
+NEVER REGRESS 16 KB / PLAY UPLOAD (read before every release)
+-------------------------------------------------------------
+Google Play rejects the AAB with "Your app does not support 16 KB memory page
+sizes" if ANY packaged native library (.so) in the bundle fails alignment checks.
+
+  DO NOT remove or loosen these without re-verifying on Play or with
+  check_elf_alignment.sh on a release artifact:
+
+  - android/app/build.gradle.kts: ndk { abiFilters } MUST stay **arm64-v8a only**
+    for release. Shipping armeabi-v7a / x86 / x86_64 often reintroduces old
+    prebuilt plugin .so that are not 16 KB–aligned and fails the whole upload.
+
+  - ndkVersion = 28.2.13676358, packaging.jniLibs.useLegacyPackaging = false,
+    AndroidManifest application extractNativeLibs=false (see section below).
+
+  - CI must install NDK r28 and export ANDROID_NDK_HOME (workflow); do not delete
+    those steps.
+
+  If Play still errors after that: upgrade Flutter stable, flutter pub upgrade,
+  then inspect .so in APK Analyzer; see Android docs on page sizes.
+
 REMINDERS (do not skip — avoids Play Console errors)
 ----------------------------------------------------
 
@@ -19,11 +40,12 @@ Keep this section when editing this file.
       below; it avoids "Version code has already been used" and gives a new code
       on every workflow run and on "Re-run failed jobs" (attempt increments).
 
-  [ ] 16 KB page size: repo must keep NDK r28 pin, extractNativeLibs=false,
-      jniLibs useLegacyPackaging=false, AGP 8.5.1+, and CI "Install Android NDK
-      r28" step. If Play still shows "does not support 16 KB memory page sizes",
-      upgrade Flutter stable + flutter pub upgrade, then re-check native .so
-      alignment (APK Analyzer / check_elf_alignment per Android docs).
+  [ ] 16 KB page size: NDK r28 pin, extractNativeLibs=false, jniLibs
+      useLegacyPackaging=false, AGP 8.5.1+, CI NDK install + ANDROID_NDK_HOME,
+      **arm64-v8a-only abiFilters** (required — see NEVER REGRESS section above).
+      If Play still shows "does not support 16 KB memory page sizes", upgrade
+      Flutter stable + flutter pub upgrade, then re-check native .so alignment
+      (APK Analyzer / check_elf_alignment per Android docs).
 
 
 Where builds run
@@ -84,7 +106,10 @@ targetSdk policies. This project configures:
 
   - Android Gradle Plugin 8.5.1+ (android/settings.gradle.kts)
   - NDK r28+ pinned in android/app/build.gradle.kts (ndkVersion = 28.2.13676358)
-  - CI installs that NDK before flutter build
+  - CI installs that NDK before flutter build and sets ANDROID_NDK_HOME for Gradle
+  - **Release ABIs: arm64-v8a only** (defaultConfig.ndk.abiFilters) — required for
+    typical Play 16 KB compliance with Flutter plugin prebuilts; do not add v7a/x86
+    without verifying alignment on a release AAB/APK.
   - packaging { jniLibs { useLegacyPackaging = false } }
   - android:extractNativeLibs="false" on <application> (AndroidManifest.xml)
 
@@ -101,8 +126,9 @@ If Play still reports "Your app does not support 16 KB memory page sizes":
   3) Android Studio → Build → Analyze APK… on the release APK; check Alignment
      for .so under lib/. Use check_elf_alignment.sh from Google’s docs if needed.
 
-  4) Optional product decision: restrict release ABIs to arm64-v8a only in
-     Gradle (drops 32-bit devices) only if acceptable.
+  4) This repo already restricts ABIs to arm64-v8a in Gradle. Do not re-add
+     32-bit/x86 ABIs without checking every .so with check_elf_alignment or Play
+     pre-launch report.
 
 
 Artifacts
