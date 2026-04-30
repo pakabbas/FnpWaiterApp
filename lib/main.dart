@@ -2731,7 +2731,8 @@ class _ReservationDetailScreenState extends State<ReservationDetailScreen> {
               ),
             )
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              // Extra bottom space keeps the last order card above Android nav buttons.
+              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 96.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
