@@ -15,6 +15,23 @@ if (keyPropertiesFile.exists()) {
     keyProperties.load(FileInputStream(keyPropertiesFile))
 }
 
+// Play "does not support 16 KB memory page sizes": androidx.datastore 1.2.0 ships
+// libdatastore_shared_counter.so that fails ELF/RELRO checks. 1.1.7 matches the
+// last line shared_preferences_android tested before that bump (Flutter #182898).
+// Revisit when Jetpack releases a datastore version whose native .so is Play-clean.
+configurations.configureEach {
+    resolutionStrategy {
+        force(
+            "androidx.datastore:datastore:1.1.7",
+            "androidx.datastore:datastore-android:1.1.7",
+            "androidx.datastore:datastore-core:1.1.7",
+            "androidx.datastore:datastore-core-android:1.1.7",
+            "androidx.datastore:datastore-preferences:1.1.7",
+            "androidx.datastore:datastore-preferences-android:1.1.7",
+        )
+    }
+}
+
 android {
     namespace = "com.foodnpals.fnpRestaurantEmployee"
     compileSdk = 36
