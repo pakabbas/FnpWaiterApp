@@ -13,8 +13,8 @@ subprojects {
         configurations.configureEach {
             resolutionStrategy.eachDependency {
                 if (requested.group == "androidx.datastore") {
-                    useVersion("1.1.7")
-                    because("Google Play 16 KB page size (datastore 1.2.x native .so)")
+                    useVersion("1.1.1")
+                    because("Play 16 KB native lib regression in newer datastore lines")
                 }
             }
         }
