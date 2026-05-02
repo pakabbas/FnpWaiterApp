@@ -3,8 +3,9 @@
 # Goals (do not regress):
 #   1) Play Store versionCode: always unique per workflow run / re-run (no "already used").
 #   2) 16 KB page size: NDK r28, ANDROID_NDK_HOME, Gradle manifest/packaging, arm64-v8a-only
-#      abiFilters, plus androidx.datastore forced to 1.1.7 in android/app/build.gradle.kts
-#      (see build_instructions.txt NEVER REGRESS — avoids Play rejection from DataStore .so).
+#      abiFilters, plus androidx.datastore 1.1.7 in android/build.gradle.kts (subprojects)
+#      and android/app/build.gradle.kts; pubspec overrides shared_preferences_android (see
+#      build_instructions.txt NEVER REGRESS).
 #
 # Secrets: RELEASE_KEYSTORE, STORE_PASSWORD, KEY_PASSWORD, KEY_ALIAS
 # Variable (optional): PLAY_STORE_VERSION_OFFSET — base for versionCode (default 1000000).

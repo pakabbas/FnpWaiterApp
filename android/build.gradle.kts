@@ -5,6 +5,22 @@ allprojects {
     }
 }
 
+// Play 16 KB: Flutter Android plugins are separate Gradle subprojects; each one
+// resolves androidx.datastore on its own classpath. Pinning only in :app can miss
+// a plugin still pulling datastore 1.2.x (bad libdatastore_shared_counter.so).
+subprojects {
+    afterEvaluate {
+        configurations.configureEach {
+            resolutionStrategy.eachDependency {
+                if (requested.group == "androidx.datastore") {
+                    useVersion("1.1.7")
+                    because("Google Play 16 KB page size (datastore 1.2.x native .so)")
+                }
+            }
+        }
+    }
+}
+
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory
         .dir("../../build")

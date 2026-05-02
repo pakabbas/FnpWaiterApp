@@ -33,12 +33,14 @@ to end, expect CI exit 1, OOM, or Play rejection again.
   - **ndkVersion** 28.2.13676358 in `android/app/build.gradle.kts`.
   - **ndk { abiFilters }** = **arm64-v8a only** in `defaultConfig`.
   - **packaging.jniLibs.useLegacyPackaging = false**; manifest **extractNativeLibs=false**.
-  - **androidx.datastore** artifacts forced to **1.1.7** in `android/app/build.gradle.kts`
-    (`configurations.configureEach { resolutionStrategy { force(...) } }`). Jetpack
-    **1.2.0** ships `libdatastore_shared_counter.so` that Play rejects with the same
-    generic "does not support 16 KB memory page sizes" string as misaligned ELF
-    segments. Do not delete this pin until Google publishes a DataStore release
-    whose native `.so` passes Play (then re-verify and update this file).
+  - **androidx.datastore** pinned to **1.1.7** in **both** `android/build.gradle.kts`
+    (all **subprojects** `afterEvaluate` → `eachDependency` on group
+    `androidx.datastore`) **and** `android/app/build.gradle.kts` (`force(...)`).
+    Flutter plugins resolve Gradle deps per subproject; **:app-only** pins can miss
+    a plugin still on datastore **1.2.x** (Play rejects `libdatastore_shared_counter.so`).
+  - **pubspec** `dependency_overrides: shared_preferences_android: 2.4.23` (or newer
+    per changelog) so the endorsed Android impl matches DataStore **1.1.7** upstream
+    (2.4.21 reverted the 1.2.0 bump). Keep the Gradle pins anyway.
 
 Keep this section when editing this file. Update it if you intentionally change
 the verified toolchain and re-verify CI + Play.
@@ -62,13 +64,13 @@ sizes" if ANY packaged native library (.so) in the bundle fails alignment checks
   - CI must install NDK r28 and export ANDROID_NDK_HOME (workflow); do not delete
     those steps.
 
-  - **androidx.datastore resolution pin (1.1.7)** in `android/app/build.gradle.kts`:
-    `shared_preferences_android` (and other plugins) can pull **datastore 1.2.0**,
-    which bundles a **non–16 KB–compliant** `libdatastore_shared_counter.so`. Play
-    then shows **"Your app does not support 16 KB memory page sizes"** even when
-    NDK, abiFilters, and manifest are correct. Removing the `force(...)` lines
-    without replacing them with a verified newer DataStore version will regress
-    Play uploads.
+  - **androidx.datastore 1.1.7** via **`android/build.gradle.kts` subprojects**
+    `eachDependency` **and** `android/app/build.gradle.kts` `force(...)`, plus
+    **pubspec** `dependency_overrides` for **shared_preferences_android** ≥ **2.4.21**
+    (e.g. 2.4.23). Jetpack **1.2.0** ships a bad `libdatastore_shared_counter.so`;
+    Play then shows **"Your app does not support 16 KB memory page sizes"** even when
+    NDK, abiFilters, and manifest are correct. Do not drop the subproject-wide Gradle
+    pin (app-only pinning is insufficient for federated plugins).
 
   If Play still errors after that: confirm the DataStore pin is present; then
     upgrade Flutter stable, flutter pub upgrade locally, commit `pubspec.lock`, and
@@ -94,8 +96,8 @@ Keep this section when editing this file.
 
   [ ] 16 KB page size: NDK r28 pin, extractNativeLibs=false, jniLibs
       useLegacyPackaging=false, AGP 8.5.1+, CI NDK install + ANDROID_NDK_HOME,
-      **arm64-v8a-only abiFilters**, and **Gradle force of androidx.datastore 1.1.7**
-      (see NEVER REGRESS — avoids bad `libdatastore_shared_counter.so` from 1.2.0).
+      **arm64-v8a-only abiFilters**, **subproject-wide + :app androidx.datastore 1.1.7**
+      pins, and **shared_preferences_android** override ≥2.4.21 (see NEVER REGRESS).
       If Play still shows "does not support 16 KB memory page sizes", confirm the
       DataStore pin, then upgrade Flutter stable + flutter pub upgrade, then
       re-check native .so (APK Analyzer / check_elf_alignment per Android docs).
@@ -184,17 +186,19 @@ targetSdk policies. This project configures:
     without verifying alignment on a release AAB/APK.
   - packaging { jniLibs { useLegacyPackaging = false } }
   - android:extractNativeLibs="false" on <application> (AndroidManifest.xml)
-  - **androidx.datastore** forced to **1.1.7** in `android/app/build.gradle.kts`
-    (see NEVER REGRESS). Without this, Jetpack **1.2.0** can break Play’s 16 KB
-    check via `libdatastore_shared_counter.so` alone.
+  - **androidx.datastore** forced to **1.1.7** in `android/build.gradle.kts` (all
+    subprojects) and `android/app/build.gradle.kts` (see NEVER REGRESS). Without
+    the subproject-wide pin, Jetpack **1.2.0** can still enter via a plugin module.
 
 Official background:
   https://developer.android.com/guide/practices/page-sizes
 
 If Play still reports "Your app does not support 16 KB memory page sizes":
 
-  0) Confirm `android/app/build.gradle.kts` still contains the **androidx.datastore
-     force(…1.1.7…)** block. If it was removed, restore it before chasing NDK/Flutter.
+  0) Confirm **androidx.datastore → 1.1.7** pins: `android/build.gradle.kts`
+     (subprojects `eachDependency`) **and** `android/app/build.gradle.kts` (`force`),
+     plus **pubspec** `shared_preferences_android` override. Restore before chasing
+     NDK/Flutter alone.
 
   1) Confirm the workflow log shows NDK install success or AGP downloading NDK.
 

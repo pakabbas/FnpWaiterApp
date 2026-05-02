@@ -2,10 +2,14 @@ name: foodnpalsapp
 description: "A new Flutter project."
 publish_to: 'none'
 
-version: 1.1.7+29
+version: 1.1.8+30
 
 environment:
   sdk: ^3.9.0
+
+dependency_overrides:
+  # 2.4.20–2.4.20 used datastore 1.2.0 (Play 16 KB rejection). 2.4.21+ reverts to 1.1.7.
+  shared_preferences_android: 2.4.23
 
 dependencies:
   flutter:
