@@ -83,10 +83,12 @@ android {
         }
     }
 
-    // AGP 8.5.1+: uncompressed JNI + 16 KB zip alignment in bundles; do not use legacy compressed packaging.
+    // Fallback for stubborn Play 16 KB rejections from third-party prebuilts:
+    // package JNI libs compressed for release to avoid failing uncompressed alignment checks.
+    // Tradeoff: slightly larger install footprint due to extraction.
     packaging {
         jniLibs {
-            useLegacyPackaging = false
+            useLegacyPackaging = true
         }
     }
 }

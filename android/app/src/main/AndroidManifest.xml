@@ -9,9 +9,7 @@
     <application
         android:label="FnP - Restaurant Employee"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
-        android:extractNativeLibs="false"
-        tools:replace="android:extractNativeLibs">
+        android:icon="@mipmap/ic_launcher">
         <!-- Add this for Google Sign-In and Firebase -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

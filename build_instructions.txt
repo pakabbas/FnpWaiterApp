@@ -32,7 +32,8 @@ to end, expect CI exit 1, OOM, or Play rejection again.
   **Android app (Play / 16 KB — overlaps NEVER REGRESS below)**
   - **ndkVersion** 28.2.13676358 in `android/app/build.gradle.kts`.
   - **ndk { abiFilters }** = **arm64-v8a only** in `defaultConfig`.
-  - **packaging.jniLibs.useLegacyPackaging = false**; manifest **extractNativeLibs=false**.
+  - **packaging.jniLibs.useLegacyPackaging = true** for release fallback; do not force
+    manifest `extractNativeLibs=false`.
   - **androidx.datastore** pinned to **1.1.7** in **both** `android/build.gradle.kts`
     (all **subprojects** `afterEvaluate` → `eachDependency` on group
     `androidx.datastore`) **and** `android/app/build.gradle.kts` (`force(...)`).
@@ -58,8 +59,9 @@ sizes" if ANY packaged native library (.so) in the bundle fails alignment checks
     for release. Shipping armeabi-v7a / x86 / x86_64 often reintroduces old
     prebuilt plugin .so that are not 16 KB–aligned and fails the whole upload.
 
-  - ndkVersion = 28.2.13676358, packaging.jniLibs.useLegacyPackaging = false,
-    AndroidManifest application extractNativeLibs=false (see section below).
+  - ndkVersion = 28.2.13676358, packaging.jniLibs.useLegacyPackaging = true
+    (compressed JNI fallback for stubborn Play checks), and no forced
+    AndroidManifest `extractNativeLibs=false`.
 
   - CI must install NDK r28 and export ANDROID_NDK_HOME (workflow); do not delete
     those steps.
@@ -94,8 +96,8 @@ Keep this section when editing this file.
       below; it avoids "Version code has already been used" and gives a new code
       on every workflow run and on "Re-run failed jobs" (attempt increments).
 
-  [ ] 16 KB page size: NDK r28 pin, extractNativeLibs=false, jniLibs
-      useLegacyPackaging=false, AGP 8.5.1+, CI NDK install + ANDROID_NDK_HOME,
+  [ ] 16 KB page size: NDK r28 pin, jniLibs useLegacyPackaging=true (release),
+      no forced extractNativeLibs=false, AGP 8.5.1+, CI NDK install + ANDROID_NDK_HOME,
       **arm64-v8a-only abiFilters**, **subproject-wide + :app androidx.datastore 1.1.7**
       pins, and **shared_preferences_android** override ≥2.4.21 (see NEVER REGRESS).
       If Play still shows "does not support 16 KB memory page sizes", confirm the
@@ -184,8 +186,8 @@ targetSdk policies. This project configures:
   - **Release ABIs: arm64-v8a only** (defaultConfig.ndk.abiFilters) — required for
     typical Play 16 KB compliance with Flutter plugin prebuilts; do not add v7a/x86
     without verifying alignment on a release AAB/APK.
-  - packaging { jniLibs { useLegacyPackaging = false } }
-  - android:extractNativeLibs="false" on <application> (AndroidManifest.xml)
+  - packaging { jniLibs { useLegacyPackaging = true } } for release fallback
+  - do not force android:extractNativeLibs="false" on <application>
   - **androidx.datastore** forced to **1.1.7** in `android/build.gradle.kts` (all
     subprojects) and `android/app/build.gradle.kts` (see NEVER REGRESS). Without
     the subproject-wide pin, Jetpack **1.2.0** can still enter via a plugin module.
